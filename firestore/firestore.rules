@@ -1,0 +1,134 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helper functions ───────────────────────────────────────────────────
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated()
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isValidString(val, maxLen) {
+      return val is string && val.size() <= maxLen;
+    }
+
+    function notUpdating(field) {
+      return !(field in request.resource.data) ||
+             request.resource.data[field] == resource.data[field];
+    }
+
+    // ─── Public read collections ────────────────────────────────────────────
+
+    match /matches/{matchId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /events/{eventId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /matchStats/{statId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /competitions/{competitionId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /teams/{teamId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /players/{playerId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /standings/{standingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /commentary/{commentaryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /streams/{streamId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /articles/{articleId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ─── User-scoped collections ────────────────────────────────────────────
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && request.auth.uid == userId
+        && isValidString(request.resource.data.displayName, 100)
+        && isValidString(request.resource.data.email, 200);
+      allow update: if isOwner(userId)
+        && notUpdating("email")
+        && notUpdating("createdAt")
+        && notUpdating("uid");
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    match /favorites/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId)
+        && request.resource.data.keys().hasOnly([
+          "matchIds", "teamIds", "playerIds", "competitionIds", "updatedAt"
+        ]);
+    }
+
+    match /predictions/{predictionId} {
+      // Predictions are public (for leaderboard) but user can only write their own
+      allow read: if true;
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.source == "user";
+      allow update: if isAuthenticated()
+        && resource.data.userId == request.auth.uid
+        && notUpdating("userId")
+        && notUpdating("matchId");
+      allow delete: if isAuthenticated()
+        && resource.data.userId == request.auth.uid;
+    }
+
+    match /notifications/{userId}/tokens/{tokenId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // ─── Admin only ─────────────────────────────────────────────────────────
+
+    match /admins/{userId} {
+      allow read: if isAdmin();
+      allow write: if false; // managed via Firebase console only
+    }
+
+    // ─── Deny all else ──────────────────────────────────────────────────────
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
