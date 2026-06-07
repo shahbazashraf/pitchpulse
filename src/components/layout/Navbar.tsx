@@ -32,6 +32,11 @@ export default function Navbar() {
             </Link>
           </li>
           <li>
+            <Link href="/world-cup" className="flex items-center gap-1 text-yellow-400 hover:text-yellow-300 transition font-semibold">
+              🏆 <span className="hidden sm:inline">World Cup</span>
+            </Link>
+          </li>
+          <li>
             <Link href="/competitions" className="text-text-secondary hover:text-text-primary transition">
               Competitions
             </Link>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMatch, useMatchStreams, useMatchEvents, useMatchStats, useMatchLineups } from "@/hooks/useMatches";
 import { cn, isLiveStatus, formatMatchTime, formatKickoff } from "@/lib/utils";
@@ -15,22 +16,23 @@ import { MatchEvents } from "@/components/match/MatchEvents";
 type Tab = "stream" | "events" | "lineup" | "stats" | "commentary";
 
 const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
-  { id: "stream",     label: "Stream",      icon: Play },
-  { id: "events",     label: "Events",      icon: Calendar },
-  { id: "lineup",     label: "Lineup",      icon: Users },
-  { id: "stats",      label: "Stats",       icon: BarChart2 },
-  { id: "commentary", label: "Commentary",  icon: MessageSquare },
+  { id: "stream", label: "Stream", icon: Play },
+  { id: "events", label: "Events", icon: Calendar },
+  { id: "lineup", label: "Lineup", icon: Users },
+  { id: "stats", label: "Stats", icon: BarChart2 },
+  { id: "commentary", label: "Commentary", icon: MessageSquare },
 ];
 
-interface Props {
-  params: { id: string };
-}
+export default function MatchPage() {
+  // Next.js 13 app router provides route params via the useParams hook.
+  // The previous implementation accessed `params.id` directly, which is a Promise
+  // in the new server‑client boundary model and caused hydration errors.
+  const { id } = useParams<{ id: string }>();
 
-export default function MatchPage({ params }: Props) {
   const [tab, setTab] = useState<Tab>("stream");
   const isLive = true; // will derive from match
 
-  const { data: match, isLoading } = useMatch(params.id, { include: ["events"] });
+  const { data: match, isLoading } = useMatch(id, { include: ["events"] });
   const matchIsLive = match ? isLiveStatus(match.status) : false;
 
   if (isLoading) return <MatchPageSkeleton />;
@@ -91,12 +93,12 @@ export default function MatchPage({ params }: Props) {
 
 function TabContent({ tab, matchId, isLive, match }: { tab: Tab; matchId: string; isLive: boolean; match: any }) {
   switch (tab) {
-    case "stream":     return <StreamPlayer matchId={matchId} isLive={isLive} />;
-    case "events":     return <MatchEvents matchId={matchId} isLive={isLive} match={match} />;
-    case "lineup":     return <LineupPitch matchId={matchId} match={match} />;
-    case "stats":      return <MatchStatsPanel matchId={matchId} isLive={isLive} match={match} />;
+    case "stream": return <StreamPlayer matchId={matchId} isLive={isLive} />;
+    case "events": return <MatchEvents matchId={matchId} isLive={isLive} match={match} />;
+    case "lineup": return <LineupPitch matchId={matchId} match={match} />;
+    case "stats": return <MatchStatsPanel matchId={matchId} isLive={isLive} match={match} />;
     case "commentary": return <LiveCommentaryFeed matchId={matchId} isLive={isLive} />;
-    default:           return null;
+    default: return null;
   }
 }
 

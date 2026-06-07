@@ -122,6 +122,23 @@ export interface NewsArticle {
   publishedAt: string; tags: string[];
   competitionId: string | null; teamIds: string[]; playerIds: string[];
   matchId: string | null; language: string;
+  aiSummary?: string;
+}
+
+export interface Highlight {
+  id: string;
+  matchId: string | null;
+  title: string;
+  competition: string;
+  year: number;
+  thumbnail: string | null;
+  duration: string | null;
+  source: string;
+  provider: string;
+  videoUrl: string | null;
+  embedUrl: string | null;
+  publishedAt: string;
+  verified: boolean;
 }
 
 export interface Commentary {

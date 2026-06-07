@@ -15,7 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="theme-color" content="#050810" />
         <link rel="icon" href="/favicon.ico" />
       </head>
-      <body className="bg-gray-900 text-text-primary min-h-screen flex flex-col">
+      <body className="bg-gray-900 text-text-primary min-h-screen flex flex-col" suppressHydrationWarning>
         <Providers>
           <Navbar />
           <LiveTicker />

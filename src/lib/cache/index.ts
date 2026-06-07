@@ -23,6 +23,7 @@ export const TTL = {
   STREAMS: 120,
   NEWS: 300,
   COMMENTARY: 10,
+  HIGHLIGHTS: 900,
 } as const;
 
 // ─── Cache key builders ──────────────────────────────────────────────────────
@@ -48,6 +49,8 @@ export const CacheKey = {
   news: (page: number, tags: string[]) =>
     `news:${page}:${tags.sort().join(",")}`,
   commentary: (matchId: string) => `commentary:${matchId}`,
+  highlights: (competition: string, year: string, limit: number) =>
+    `highlights:${competition}:${year}:${limit}`,
 };
 
 // ─── Shared client interface ─────────────────────────────────────────────────

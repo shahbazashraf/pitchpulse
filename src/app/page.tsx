@@ -1,31 +1,88 @@
-import ScoresDashboard from '@/components/match/ScoresDashboard';
-import { WorldCupBanner } from '@/components/match/WorldCupBanner';
+import { Trophy, Play, Newspaper, Compass } from "lucide-react";
+import Link from "next/link";
+import ScoresDashboard from "@/components/match/ScoresDashboard";
+import { WorldCupHero } from "@/components/match/WorldCupHero";
+import { HighlightsFeed } from "@/components/highlights/HighlightsFeed";
+import { NewsSection } from "@/components/news/NewsSection";
+import { CompetitionCards } from "@/components/competitions/CompetitionCards";
 
 export const metadata = {
-  title: 'PitchPulse – Live Football Scores',
-  description: 'Real‑time football scores, World Cup 2026 standings, streams, and AI commentary.',
+  title: "PitchPulse – World Cup 2026 Football Hub",
+  description:
+    "World Cup 2026 live scores, highlights, breaking football news, and free streams — all in one premium experience.",
 };
+
+function SectionHeader({
+  icon,
+  title,
+  href,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  href?: string;
+}) {
+  return (
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 rounded-lg bg-pitch-green/15 border border-pitch-green/20 flex items-center justify-center text-pitch-green">
+          {icon}
+        </div>
+        <h2 className="text-xl font-bold text-pitch-text-primary">{title}</h2>
+      </div>
+      {href && (
+        <Link
+          href={href}
+          className="text-sm text-pitch-text-secondary hover:text-pitch-green transition font-medium"
+        >
+          View all →
+        </Link>
+      )}
+    </div>
+  );
+}
 
 export default function HomePage() {
   return (
-    <div className="space-y-8">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden rounded-3xl bg-hero-gradient p-8 text-center text-text-primary shadow-glass">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4 animate-float">
-          Welcome to PitchPulse
-        </h1>
-        <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto">
-          Live scores, World Cup 2026 groups & standings, free streams, and AI‑powered match commentary—all in one premium experience.
-        </p>
+    <div className="space-y-10">
+      {/* 1. World Cup Hero */}
+      <WorldCupHero />
+
+      {/* 2. Live Matches */}
+      <section>
+        <SectionHeader
+          icon={<Trophy className="w-4 h-4" />}
+          title="Matches"
+        />
+        <ScoresDashboard />
       </section>
 
-      {/* World Cup Banner – shows next WC match if any */}
-      <WorldCupBanner />
-
-      {/* Live Scores */}
+      {/* 3. World Cup Highlights */}
       <section>
-        <h2 className="text-2xl font-semibold text-text-primary mb-4">Live Matches</h2>
-        <ScoresDashboard />
+        <SectionHeader
+          icon={<Play className="w-4 h-4" />}
+          title="World Cup Highlights"
+          href="/world-cup"
+        />
+        <HighlightsFeed limit={6} />
+      </section>
+
+      {/* 4. Breaking Football News */}
+      <section>
+        <SectionHeader
+          icon={<Newspaper className="w-4 h-4" />}
+          title="Breaking Football News"
+          href="/news"
+        />
+        <NewsSection limit={5} />
+      </section>
+
+      {/* 5. Explore Competitions */}
+      <section>
+        <SectionHeader
+          icon={<Compass className="w-4 h-4" />}
+          title="Explore Competitions"
+        />
+        <CompetitionCards />
       </section>
     </div>
   );

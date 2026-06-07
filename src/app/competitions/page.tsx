@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, TrendingUp, TrendingDown, Minus, ChevronDown } from "lucide-react";
@@ -18,7 +19,18 @@ const FEATURED_COMPETITIONS = [
 ];
 
 export default function CompetitionsPage() {
-  const [selected, setSelected] = useState("fifa-world-cup-2026");
+  return (
+    <Suspense fallback={<div className="text-center py-12 text-pitch-text-secondary">Loading…</div>}>
+      <CompetitionsInner />
+    </Suspense>
+  );
+}
+
+function CompetitionsInner() {
+  const searchParams = useSearchParams();
+  const [selected, setSelected] = useState(
+    searchParams.get("c") ?? "fifa-world-cup-2026"
+  );
   const comp = FEATURED_COMPETITIONS.find((c) => c.id === selected);
 
   const { data: standings = [], isLoading } = useQuery<NormalizedStanding[]>({
