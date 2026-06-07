@@ -1,31 +1,32 @@
-import { Suspense } from "react";
-import { ScoresDashboard } from "@/components/match/ScoresDashboard";
-import { WorldCupBanner } from "@/components/match/WorldCupBanner";
+import ScoresDashboard from '@/components/match/ScoresDashboard';
+import { WorldCupBanner } from '@/components/match/WorldCupBanner';
+
+export const metadata = {
+  title: 'PitchPulse – Live Football Scores',
+  description: 'Real‑time football scores, World Cup 2026 standings, streams, and AI commentary.',
+};
 
 export default function HomePage() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-4">
-      <WorldCupBanner />
-      <Suspense fallback={<ScoresDashboardSkeleton />}>
-        <ScoresDashboard />
-      </Suspense>
-    </div>
-  );
-}
+    <div className="space-y-8">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden rounded-3xl bg-hero-gradient p-8 text-center text-text-primary shadow-glass">
+        <h1 className="text-4xl md:text-5xl font-bold mb-4 animate-float">
+          Welcome to PitchPulse
+        </h1>
+        <p className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto">
+          Live scores, World Cup 2026 groups & standings, free streams, and AI‑powered match commentary—all in one premium experience.
+        </p>
+      </section>
 
-function ScoresDashboardSkeleton() {
-  return (
-    <div className="space-y-4">
-      <div className="flex gap-2">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="h-9 w-24 rounded-xl skeleton" />
-        ))}
-      </div>
-      <div className="space-y-2">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-20 rounded-2xl skeleton" />
-        ))}
-      </div>
+      {/* World Cup Banner – shows next WC match if any */}
+      <WorldCupBanner />
+
+      {/* Live Scores */}
+      <section>
+        <h2 className="text-2xl font-semibold text-text-primary mb-4">Live Matches</h2>
+        <ScoresDashboard />
+      </section>
     </div>
   );
 }

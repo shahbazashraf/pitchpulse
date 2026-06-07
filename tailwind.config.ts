@@ -13,6 +13,9 @@ const config: Config = {
         jakarta: ["var(--font-jakarta)", "sans-serif"],
       },
       colors: {
+        "text-primary": "#F0F4FF",
+        "text-secondary": "#8899BB",
+        "text-muted": "#4A5A7A",
         // PitchPulse Design System
         pitch: {
           black: "#050810",

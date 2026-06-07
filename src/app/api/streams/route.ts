@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cache, TTL } from "@/lib/cache";
 import { initializeApp, getApps, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
+import { FREE_BROADCASTERS, broadcasterToStream } from "@/lib/streams/broadcasters";
 
 export const runtime = "nodejs";
 
@@ -24,17 +25,30 @@ export async function GET(req: NextRequest) {
     const data = await cache.getOrFetch(
       cacheKey,
       async () => {
-        const db = getDb();
-        let query = db
-          .collection("streams")
-          .where("is_official", "==", true)
-          .orderBy("is_available", "desc");
+        const staticStreams = FREE_BROADCASTERS.map((b) =>
+          broadcasterToStream(b, matchId ?? "wc2026:static", false),
+        );
 
-        if (matchId) query = query.where("matchId", "==", matchId) as any;
-        if (liveOnly) query = query.where("is_available", "==", true) as any;
+        try {
+          const db = getDb();
+          let query = db
+            .collection("streams")
+            .where("is_official", "==", true)
+            .orderBy("is_available", "desc");
 
-        const snap = await query.limit(50).get();
-        return snap.docs.map((d) => d.data());
+          if (matchId) query = query.where("matchId", "==", matchId) as any;
+          if (liveOnly) query = query.where("is_available", "==", true) as any;
+
+          const snap = await query.limit(50).get();
+          const firestoreStreams = snap.docs.map((d) => d.data());
+          const firestoreIds = new Set(firestoreStreams.map((s: any) => s.id));
+          return [
+            ...firestoreStreams,
+            ...staticStreams.filter((s) => !firestoreIds.has(s.id)),
+          ];
+        } catch {
+          return liveOnly ? [] : staticStreams;
+        }
       },
       TTL.STREAMS,
     );

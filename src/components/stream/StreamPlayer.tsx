@@ -27,10 +27,10 @@ export function StreamPlayer({ matchId, isLive }: StreamPlayerProps) {
   const [embedExpanded, setEmbedExpanded] = useState(false);
 
   const available = streams
-    .filter((s) => s.is_available)
+    .filter((s) => s.isAvailable)
     .sort((a, b) => (QUALITY_ORDER[b.quality] ?? 0) - (QUALITY_ORDER[a.quality] ?? 0));
 
-  const unavailable = streams.filter((s) => !s.is_available);
+  const unavailable = streams.filter((s) => !s.isAvailable);
   const selected = activeStream ?? available[0] ?? null;
 
   if (isLoading) {
@@ -68,7 +68,7 @@ export function StreamPlayer({ matchId, isLive }: StreamPlayerProps) {
           <div className="px-4 py-2.5 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-xs font-medium text-pitch-text-secondary">{selected.broadcaster}</span>
-              {selected.is_free && (
+              {selected.isFree && (
                 <span className="text-[10px] bg-pitch-green/15 text-pitch-green border border-pitch-green/25 px-1.5 py-0.5 rounded-full font-medium">
                   FREE
                 </span>
@@ -213,12 +213,12 @@ function StreamRow({ stream, isActive, onSelect, disabled = false }: StreamRowPr
           <span className="text-sm font-medium text-pitch-text-primary truncate">
             {stream.broadcaster}
           </span>
-          {stream.is_free && (
+          {stream.isFree && (
             <span className="text-[10px] bg-pitch-green/10 text-pitch-green border border-pitch-green/20 px-1.5 py-0.5 rounded-full font-semibold shrink-0">
               FREE
             </span>
           )}
-          {stream.is_geo_restricted && (
+          {stream.isGeoRestricted && (
             <span className="flex items-center gap-0.5 text-[10px] text-pitch-text-muted shrink-0">
               <Lock className="w-2.5 h-2.5" />
               {stream.region.join(", ")}

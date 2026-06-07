@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useMatchLineups } from "@/hooks/useMatches";
 import { Users, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";

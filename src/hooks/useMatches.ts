@@ -1,153 +1,141 @@
 "use client";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
-import type { NormalizedMatch, StreamSource, NewsArticle } from "@/types";
+import { useQuery } from '@tanstack/react-query';
+import { Commentary, NormalizedLineup, NormalizedMatch, NormalizedMatchEvent, NormalizedMatchStats, StreamSource } from '@/types';
 
-// ─── Live matches ─────────────────────────────────────────────────────────────
-
-export function useLiveMatches(competitionIds?: string[]) {
-  const params = competitionIds?.length
-    ? `?competitions=${competitionIds.join(",")}`
-    : "";
-
+export function useMatches() {
   return useQuery<NormalizedMatch[]>({
-    queryKey: ["matches", "live", competitionIds],
+    queryKey: ['liveMatches'],
     queryFn: async () => {
-      const res = await fetch(`/api/matches/live${params}`);
-      if (!res.ok) throw new Error("Failed to fetch live matches");
-      const json = await res.json();
-      return json.matches ?? [];
+      const res = await fetch('/api/matches/live');
+      if (!res.ok) throw new Error('Failed to fetch live matches');
+      const data = await res.json();
+      return data.matches as NormalizedMatch[];
     },
-    refetchInterval: 15_000, // refresh every 15s for live data
-    staleTime: 10_000,
+    staleTime: 30 * 1000, // 30 seconds
+    refetchInterval: 30 * 1000,
   });
 }
 
-// ─── Matches by date ──────────────────────────────────────────────────────────
-
-export function useMatchesByDate(date: string, competitionIds?: string[]) {
-  const params = new URLSearchParams({ date });
-  if (competitionIds?.length) params.set("competitions", competitionIds.join(","));
-
-  const isToday = date === new Date().toISOString().split("T")[0];
-
-  return useQuery<NormalizedMatch[]>({
-    queryKey: ["matches", "date", date, competitionIds],
-    queryFn: async () => {
-      const res = await fetch(`/api/matches/date?${params}`);
-      if (!res.ok) throw new Error("Failed to fetch matches");
-      const json = await res.json();
-      return json.matches ?? [];
-    },
-    refetchInterval: isToday ? 30_000 : false,
-    staleTime: isToday ? 20_000 : 60 * 60_000,
-  });
+interface UseMatchOptions {
+  include?: Array<'events' | 'stats' | 'lineups'>;
 }
 
-// ─── Single match ─────────────────────────────────────────────────────────────
+export function useMatch(matchId: string, options: UseMatchOptions = {}) {
+  const include = options.include?.join(',');
 
-export function useMatch(
-  id: string,
-  options: { include?: ("events" | "stats" | "lineups")[] } = {},
-) {
-  const params = new URLSearchParams();
-  if (options.include?.length) params.set("include", options.include.join(","));
-
-  return useQuery<NormalizedMatch>({
-    queryKey: ["match", id, options.include],
+  return useQuery<NormalizedMatch | null>({
+    queryKey: ['match', matchId, include ?? 'summary'],
     queryFn: async () => {
-      const res = await fetch(`/api/matches/${id}?${params}`);
-      if (!res.ok) throw new Error("Match not found");
-      const json = await res.json();
-      return json.match;
-    },
-    enabled: Boolean(id),
-    staleTime: 10_000,
-    refetchInterval: (query) => {
-      const match = query.state.data;
-      if (!match) return false;
-      const isLive = ["1H", "2H", "HT", "ET", "P"].includes(match.status);
-      return isLive ? 15_000 : false;
-    },
-  });
-}
-
-// ─── Streams for a match ──────────────────────────────────────────────────────
-
-export function useMatchStreams(matchId: string) {
-  return useQuery<StreamSource[]>({
-    queryKey: ["streams", matchId],
-    queryFn: async () => {
-      const res = await fetch(`/api/streams/${matchId}`);
-      if (!res.ok) return [];
-      const json = await res.json();
-      return json.streams ?? [];
-    },
-    enabled: Boolean(matchId),
-    staleTime: 90_000,
-    refetchInterval: 120_000,
-  });
-}
-
-// ─── Prefetch utils ───────────────────────────────────────────────────────────
-
-export function usePrefetchMatch(id: string) {
-  const client = useQueryClient();
-  return () => {
-    client.prefetchQuery({
-      queryKey: ["match", id, ["events", "stats", "lineups"]],
-      queryFn: () =>
-        fetch(`/api/matches/${id}?include=events,stats,lineups`)
-          .then((r) => r.json())
-          .then((j) => j.match),
-      staleTime: 10_000,
-    });
-  };
-}
-
-// ─── Real-time match events via polling ──────────────────────────────────────
-
-export function useMatchEvents(matchId: string, isLive: boolean) {
-  return useQuery({
-    queryKey: ["match-events", matchId],
-    queryFn: async () => {
-      const res = await fetch(`/api/matches/${matchId}?include=events`);
-      if (!res.ok) return [];
-      const json = await res.json();
-      return json.match?.events ?? [];
-    },
-    enabled: Boolean(matchId),
-    refetchInterval: isLive ? 15_000 : false,
-    staleTime: isLive ? 10_000 : Infinity,
-  });
-}
-
-export function useMatchStats(matchId: string, isLive: boolean) {
-  return useQuery({
-    queryKey: ["match-stats", matchId],
-    queryFn: async () => {
-      const res = await fetch(`/api/matches/${matchId}?include=stats`);
+      const params = include ? `?include=${encodeURIComponent(include)}` : '';
+      const res = await fetch(`/api/matches/${encodeURIComponent(matchId)}${params}`);
       if (!res.ok) return null;
-      const json = await res.json();
-      return json.match?.stats ?? null;
+      const data = await res.json();
+      return data.match as NormalizedMatch;
     },
     enabled: Boolean(matchId),
-    refetchInterval: isLive ? 30_000 : false,
-    staleTime: isLive ? 20_000 : Infinity,
+    staleTime: 30 * 1000,
+    refetchInterval: 30 * 1000,
+  });
+}
+
+export function useMatchEvents(matchId: string, isLive = false) {
+  return useQuery<NormalizedMatchEvent[]>({
+    queryKey: ['match-events', matchId],
+    queryFn: async () => {
+      const res = await fetch(`/api/matches/${encodeURIComponent(matchId)}?include=events`);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return (data.match?.events ?? []) as NormalizedMatchEvent[];
+    },
+    enabled: Boolean(matchId),
+    staleTime: isLive ? 15 * 1000 : 5 * 60 * 1000,
+    refetchInterval: isLive ? 20 * 1000 : false,
+  });
+}
+
+export function useMatchStats(matchId: string, isLive = false) {
+  return useQuery<NormalizedMatchStats[]>({
+    queryKey: ['match-stats', matchId],
+    queryFn: async () => {
+      const res = await fetch(`/api/matches/${encodeURIComponent(matchId)}?include=stats`);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return (data.match?.stats ?? []) as NormalizedMatchStats[];
+    },
+    enabled: Boolean(matchId),
+    staleTime: isLive ? 20 * 1000 : 5 * 60 * 1000,
+    refetchInterval: isLive ? 30 * 1000 : false,
   });
 }
 
 export function useMatchLineups(matchId: string) {
-  return useQuery({
-    queryKey: ["match-lineups", matchId],
+  return useQuery<NormalizedLineup[]>({
+    queryKey: ['match-lineups', matchId],
     queryFn: async () => {
-      const res = await fetch(`/api/matches/${matchId}?include=lineups`);
-      if (!res.ok) return null;
-      const json = await res.json();
-      return json.match?.lineups ?? null;
+      const res = await fetch(`/api/matches/${encodeURIComponent(matchId)}?include=lineups`);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return (data.match?.lineups ?? []) as NormalizedLineup[];
     },
     enabled: Boolean(matchId),
-    staleTime: 5 * 60_000, // lineups cache 5min
+    staleTime: 5 * 60 * 1000,
   });
+}
+
+export function useMatchStreams(matchId: string) {
+  return useQuery<StreamSource[]>({
+    queryKey: ['match-streams', matchId],
+    queryFn: async () => {
+      const res = await fetch(`/api/streams/${encodeURIComponent(matchId)}`);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return (data.streams ?? []).map(normalizeStream) as StreamSource[];
+    },
+    enabled: Boolean(matchId),
+    staleTime: 2 * 60 * 1000,
+    refetchInterval: 2 * 60 * 1000,
+  });
+}
+
+export function useMatchCommentary(matchId: string, isLive = false) {
+  return useQuery<Commentary[]>({
+    queryKey: ['commentary', matchId],
+    queryFn: async () => {
+      const res = await fetch(`/api/commentary/${encodeURIComponent(matchId)}`);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return (data.commentary ?? []) as Commentary[];
+    },
+    enabled: Boolean(matchId),
+    staleTime: isLive ? 8 * 1000 : Infinity,
+    refetchInterval: isLive ? 12 * 1000 : false,
+  });
+}
+
+function normalizeStream(raw: any): StreamSource {
+  return {
+    id: String(raw.id),
+    matchId: String(raw.matchId ?? raw.match_id ?? ''),
+    broadcaster: String(raw.broadcaster ?? raw.name ?? 'Unknown broadcaster'),
+    broadcasterId: String(raw.broadcasterId ?? raw.broadcaster_id ?? raw.id),
+    title: String(raw.title ?? raw.broadcaster ?? 'Live stream'),
+    url: String(raw.url ?? '#'),
+    embedUrl: raw.embedUrl ?? raw.embed_url ?? null,
+    streamType: raw.streamType ?? raw.stream_type ?? 'live',
+    quality: raw.quality ?? 'HD',
+    language: raw.language ?? 'en',
+    region: raw.region ?? raw.regions ?? [],
+    isOfficial: raw.isOfficial ?? raw.is_official ?? true,
+    isGeoRestricted: raw.isGeoRestricted ?? raw.is_geo_restricted ?? false,
+    requiresAuth: raw.requiresAuth ?? raw.requires_auth ?? false,
+    requiresSubscription: raw.requiresSubscription ?? raw.requires_subscription ?? false,
+    isFree: raw.isFree ?? raw.is_free ?? true,
+    isAvailable: raw.isAvailable ?? raw.is_available ?? false,
+    availableFrom: raw.availableFrom ?? raw.available_from ?? null,
+    availableUntil: raw.availableUntil ?? raw.available_until ?? null,
+    lastVerified: raw.lastVerified ?? raw.last_verified ?? new Date().toISOString(),
+    thumbnailUrl: raw.thumbnailUrl ?? raw.thumbnail_url ?? null,
+    platform: raw.platform ?? 'web',
+  };
 }
