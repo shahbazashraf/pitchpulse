@@ -77,7 +77,6 @@ export function useHoofootHighlights(limit = 12) {
       const matches = await fetchHoofootList();
       const top = matches.slice(0, limit);
 
-      // Fetch embeds in parallel (browser handles concurrency)
       const highlights = await Promise.all(
         top.map(async (m): Promise<Highlight | null> => {
           const embed = await fetchVideoEmbed(m.id);
@@ -100,9 +99,21 @@ export function useHoofootHighlights(limit = 12) {
         })
       );
 
-      return highlights.filter((h): h is Highlight => h !== null);
+      const valid = highlights.filter((h): h is Highlight => h !== null);
+
+      // Write-back to Firestore via ingest endpoint (fire and forget)
+      // This caches hoofoot data server-side so other users get it from Firestore
+      if (valid.length > 0) {
+        fetch("/api/highlights/ingest", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ highlights: valid.slice(0, 20) }),
+        }).catch(() => { /* ignore failures */ });
+      }
+
+      return valid;
     },
-    staleTime: 10 * 60_000, // 10 minutes — re-check hoofoot every 10 min
+    staleTime: 10 * 60_000,
     gcTime: 30 * 60_000,
     retry: 1,
   });

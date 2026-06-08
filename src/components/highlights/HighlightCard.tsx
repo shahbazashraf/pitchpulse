@@ -32,10 +32,12 @@ export function HighlightCard({ highlight, index, onPlay, isPlaying }: Highlight
             alt={highlight.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-pitch-muted/60">
-            <Play className="w-10 h-10 text-pitch-text-muted" />
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-pitch-green/20 to-pitch-blue/20 p-4">
+            <Play className="w-10 h-10 text-pitch-green/60" />
+            <p className="text-xs text-pitch-text-secondary text-center line-clamp-2">{highlight.title}</p>
           </div>
         )}
 

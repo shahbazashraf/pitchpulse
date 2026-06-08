@@ -1,0 +1,16 @@
+name: Sync Highlights
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping highlights cron
+        run: |
+          curl -sf \
+            "${{ secrets.APP_URL }}/api/cron/highlights?secret=${{ secrets.CRON_SECRET }}" \
+            -w "\nHTTP %{http_code}" || echo "Failed (non-critical)"

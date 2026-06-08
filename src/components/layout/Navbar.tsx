@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { Moon, Sun } from 'lucide-react';
-import clsx from 'clsx';
 
 export default function Navbar() {
   const [dark, setDark] = useState<boolean>(true);
@@ -44,6 +43,11 @@ export default function Navbar() {
           <li>
             <Link href="/news" className="text-text-secondary hover:text-text-primary transition">
               News
+            </Link>
+          </li>
+          <li>
+            <Link href="/highlights" className="text-text-secondary hover:text-text-primary transition">
+              Highlights
             </Link>
           </li>
           <li>

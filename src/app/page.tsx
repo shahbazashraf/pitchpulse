@@ -61,7 +61,7 @@ export default function HomePage() {
         <SectionHeader
           icon={<Play className="w-4 h-4" />}
           title="World Cup Highlights"
-          href="/world-cup"
+          href="/highlights"
         />
         <HighlightsFeed limit={6} />
       </section>

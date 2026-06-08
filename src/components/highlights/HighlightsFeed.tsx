@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import clsx from "clsx";
-import { useHoofootHighlights } from "@/hooks/useHoofootHighlights";
+import { useHighlights } from "@/hooks/useHighlights";
 import { HighlightCard } from "./HighlightCard";
 import { HighlightPlayer } from "./HighlightPlayer";
 import { Highlight } from "@/types";
@@ -11,12 +11,15 @@ import { AlertCircle } from "lucide-react";
 interface HighlightsFeedProps {
   limit?: number;
   showYearTabs?: boolean;
+  competition?: string;
+  page?: number;
 }
 
 const YEARS = [
   { label: "All", value: undefined as number | undefined },
   { label: "2026", value: 2026 },
   { label: "2025", value: 2025 },
+  { label: "2022", value: 2022 },
 ];
 
 function SkeletonGrid({ count }: { count: number }) {
@@ -29,15 +32,14 @@ function SkeletonGrid({ count }: { count: number }) {
   );
 }
 
-export function HighlightsFeed({ limit = 12, showYearTabs = false }: HighlightsFeedProps) {
+export function HighlightsFeed({ limit = 12, showYearTabs = false, competition, page = 0 }: HighlightsFeedProps) {
   const [activeYear, setActiveYear] = useState<number | undefined>(undefined);
   const [playingId, setPlayingId] = useState<string | null>(null);
 
-  const { data: rawHighlights, isLoading, isError, error } = useHoofootHighlights(limit);
+  const offset = page * limit;
+  const { data: rawHighlights, isLoading, isError } = useHighlights(competition, activeYear, limit, offset);
 
-  const highlights: Highlight[] = (rawHighlights ?? []).filter((h) =>
-    activeYear === undefined ? true : h.year === activeYear
-  );
+  const highlights: Highlight[] = Array.isArray(rawHighlights) ? rawHighlights : [];
 
   const playingHighlight = highlights.find((h) => h.id === playingId) ?? null;
 
@@ -82,20 +84,8 @@ export function HighlightsFeed({ limit = 12, showYearTabs = false }: HighlightsF
         <div className="flex flex-col items-center gap-3 py-10 text-center">
           <AlertCircle className="w-8 h-8 text-pitch-text-muted" />
           <p className="text-pitch-text-secondary text-sm">
-            {isError
-              ? "Could not load highlights. Check your browser's ad blocker settings."
-              : "No highlights found."}
+            {isError ? "Could not load highlights." : "No highlights found."}
           </p>
-          {isError && (
-            <a
-              href="https://hoofoot.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-pitch-green hover:underline"
-            >
-              Browse highlights on HooFoot →
-            </a>
-          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
