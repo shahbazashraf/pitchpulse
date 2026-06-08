@@ -1,0 +1,12 @@
+{
+    "experimentalServices": {
+        "frontend": {
+            "routePrefix": "/",
+            "framework": "nextjs"
+        },
+        "python": {
+            "root": "services/python",
+            "routePrefix": "/_python"
+        }
+    }
+}

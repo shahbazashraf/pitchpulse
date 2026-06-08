@@ -5,6 +5,7 @@
 .env.development.local
 .env.test.local
 .env.production.local
+.env.vercel
 
 # Firebase service account key (contains private key!)
 service-account.json
