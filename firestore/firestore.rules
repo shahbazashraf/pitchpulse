@@ -118,6 +118,13 @@ service cloud.firestore {
       allow read, write: if isOwner(userId);
     }
 
+    // ─── Highlights — public read, admin write ──────────────────────────────
+
+    match /highlights/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // ─── Admin only ─────────────────────────────────────────────────────────
 
     match /admins/{userId} {

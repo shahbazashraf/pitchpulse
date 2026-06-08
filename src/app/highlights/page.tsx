@@ -18,6 +18,7 @@ const COMPETITIONS = [
 
 export default function HighlightsPage() {
   const [activeComp, setActiveComp] = useState("all");
+  const [search, setSearch] = useState("");
 
   return (
     <div className="space-y-8">
@@ -50,12 +51,22 @@ export default function HighlightsPage() {
             </button>
           ))}
         </div>
+
+        {/* Search */}
+        <input
+          type="text"
+          placeholder="Search teams or matches..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full max-w-sm px-4 py-2 rounded-xl bg-pitch-muted/20 border border-pitch-border/40 text-pitch-text-primary placeholder:text-pitch-text-muted text-sm focus:outline-none focus:border-pitch-green/40 transition-colors"
+        />
       </div>
 
       {/* Feed */}
       <HighlightsFeed
         limit={24}
         competition={activeComp === "all" ? undefined : activeComp}
+        search={search}
       />
     </div>
   );

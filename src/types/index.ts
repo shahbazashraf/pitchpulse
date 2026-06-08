@@ -139,6 +139,12 @@ export interface Highlight {
   embedUrl: string | null;
   publishedAt: string;
   verified: boolean;
+  // hoofoot-specific fields
+  homeTeam?: string;
+  awayTeam?: string;
+  homeScore?: number | null;
+  awayScore?: number | null;
+  slug?: string;
 }
 
 export interface Commentary {

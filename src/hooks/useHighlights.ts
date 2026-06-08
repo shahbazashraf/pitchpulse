@@ -3,6 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { Highlight } from "@/types";
 
+const LOG = "[useHighlights]";
+
 export function useHighlights(
   competition?: string,
   year?: number,
@@ -17,12 +19,31 @@ export function useHighlights(
       if (year) params.set("year", String(year));
       params.set("limit", String(limit));
       if (offset > 0) params.set("offset", String(offset));
-      const res = await fetch(`/api/highlights?${params}`);
-      if (!res.ok) return [];
+
+      const url = `/api/highlights?${params}`;
+      console.log(`${LOG} Fetching competition=${competition ?? "all"} limit=${limit}`, url);
+
+      const res = await fetch(url);
+
+      if (!res.ok) {
+        console.error(`${LOG} HTTP ${res.status} from ${url}`);
+        return [];
+      }
+
       const data = await res.json();
-      // Handle both { highlights: [] } and a bare array defensively
-      const list = Array.isArray(data) ? data : (data.highlights ?? []);
-      return list as Highlight[];
+      const list: Highlight[] = Array.isArray(data) ? data : (data.highlights ?? []);
+
+      console.log(
+        `${LOG} Got ${list.length} highlights` +
+        (data.fromCache ? " (cached)" : "") +
+        (data.source ? ` source=${data.source}` : "")
+      );
+
+      if (list.length === 0) {
+        console.warn(`${LOG} Empty result — competition="${competition ?? "all"}" may have no data in Firestore yet`);
+      }
+
+      return list;
     },
     staleTime: 15 * 60_000,
   });

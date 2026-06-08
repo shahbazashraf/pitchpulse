@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useHoofootHighlights } from "@/hooks/useHoofootHighlights";
+import { useState, useEffect } from "react";
+import { useHighlights } from "@/hooks/useHighlights";
 import { HighlightCard } from "./HighlightCard";
 import { HighlightPlayer } from "./HighlightPlayer";
 import { Highlight } from "@/types";
@@ -10,6 +10,7 @@ import { AlertCircle } from "lucide-react";
 interface HighlightsFeedProps {
   limit?: number;
   competition?: string;
+  search?: string;
 }
 
 function SkeletonGrid({ count }: { count: number }) {
@@ -22,14 +23,34 @@ function SkeletonGrid({ count }: { count: number }) {
   );
 }
 
-export function HighlightsFeed({ limit = 24, competition }: HighlightsFeedProps) {
+export function HighlightsFeed({ limit = 24, competition, search }: HighlightsFeedProps) {
   const [playingId, setPlayingId] = useState<string | null>(null);
 
-  const { data: rawHighlights, isLoading, isError } = useHoofootHighlights(limit);
+  const { data: rawHighlights, isLoading, isError } = useHighlights(competition, undefined, limit);
+
+  useEffect(() => {
+    if (isError) {
+      console.error(`[HighlightsFeed] Query error — competition=${competition ?? "all"} limit=${limit}`);
+    }
+  }, [isError, competition, limit]);
+
+  useEffect(() => {
+    if (!isLoading && rawHighlights !== undefined) {
+      const count = Array.isArray(rawHighlights) ? rawHighlights.length : 0;
+      console.log(`[HighlightsFeed] Rendered ${count} highlights — competition=${competition ?? "all"} search="${search ?? ""}"`);
+    }
+  }, [isLoading, rawHighlights, competition, search]);
 
   const allHighlights: Highlight[] = Array.isArray(rawHighlights) ? rawHighlights : [];
-  const highlights = competition
-    ? allHighlights.filter((h) => h.competition?.toLowerCase().includes(competition.toLowerCase()))
+  const highlights = search?.trim()
+    ? allHighlights.filter((h) => {
+        const q = search.toLowerCase();
+        return (
+          h.title?.toLowerCase().includes(q) ||
+          h.homeTeam?.toLowerCase().includes(q) ||
+          h.awayTeam?.toLowerCase().includes(q)
+        );
+      })
     : allHighlights;
 
   const playingHighlight = highlights.find((h) => h.id === playingId) ?? null;
