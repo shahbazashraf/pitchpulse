@@ -56,42 +56,44 @@ export function HighlightsFeed({ limit = 24, competition, search }: HighlightsFe
   const playingHighlight = highlights.find((h) => h.id === playingId) ?? null;
 
   function handlePlay(h: Highlight) {
-    setPlayingId(playingId === h.id ? null : h.id);
+    setPlayingId(h.id);
   }
 
   return (
-    <div className="space-y-4">
-      {/* Inline player */}
+    <>
+      {/* Grid */}
+      <div className="space-y-4">
+        {isLoading ? (
+          <SkeletonGrid count={Math.min(limit, 6)} />
+        ) : isError || highlights.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 py-10 text-center">
+            <AlertCircle className="w-8 h-8 text-pitch-text-muted" />
+            <p className="text-pitch-text-secondary text-sm">
+              {isError ? "Could not load highlights." : "No highlights found."}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {highlights.map((h, i) => (
+              <HighlightCard
+                key={h.id}
+                highlight={h}
+                index={i}
+                onPlay={handlePlay}
+                isPlaying={playingId === h.id}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Modal player — rendered outside grid so it sits above everything */}
       {playingHighlight && (
         <HighlightPlayer
           highlight={playingHighlight}
           onClose={() => setPlayingId(null)}
         />
       )}
-
-      {/* Grid */}
-      {isLoading ? (
-        <SkeletonGrid count={Math.min(limit, 6)} />
-      ) : isError || highlights.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 py-10 text-center">
-          <AlertCircle className="w-8 h-8 text-pitch-text-muted" />
-          <p className="text-pitch-text-secondary text-sm">
-            {isError ? "Could not load highlights." : "No highlights found."}
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {highlights.map((h, i) => (
-            <HighlightCard
-              key={h.id}
-              highlight={h}
-              index={i}
-              onPlay={handlePlay}
-              isPlaying={playingId === h.id}
-            />
-          ))}
-        </div>
-      )}
-    </div>
+    </>
   );
 }

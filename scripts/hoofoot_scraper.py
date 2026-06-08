@@ -169,6 +169,10 @@ def parse_match_detail(html: str, slug: str, page_url: str) -> HoofootMatch:
     if embed_m:
         embed_id = embed_m.group(1)
         embed_url = embed_m.group(0)
+        # Override thumbnail with embed image URL (hoofoot thumbnails 403 cross-origin)
+        subdomain_m = re.match(r'https://([^.]+)\.vibedailyhighlights', embed_url)
+        if subdomain_m:
+            thumbnail = f"https://{subdomain_m.group(1)}.vibedailyhighlights.com/embed/image/{embed_id}"
     else:
         gen_m = GENERIC_EMBED.search(html)
         if gen_m:
@@ -343,7 +347,7 @@ def write_to_firestore(matches: list[HoofootMatch], sa_path: Optional[str] = Non
             "provider": "HooFoot",
             "embedUrl": m.embed_url,
             "videoUrl": m.embed_url,
-            "publishedAt": m.date or m.scraped_at,
+            "publishedAt": f"{m.date}T00:00:00Z" if m.date else m.scraped_at,
             "verified": False,
             "homeTeam": m.home_team,
             "awayTeam": m.away_team,

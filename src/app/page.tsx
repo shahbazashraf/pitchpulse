@@ -47,7 +47,16 @@ export default function HomePage() {
       {/* 1. World Cup Hero */}
       <WorldCupHero />
 
-      {/* 2. Live Matches */}
+      {/* 2. Explore Competitions */}
+      <section>
+        <SectionHeader
+          icon={<Compass className="w-4 h-4" />}
+          title="Explore Competitions"
+        />
+        <CompetitionCards />
+      </section>
+
+      {/* 3. Live Matches */}
       <section>
         <SectionHeader
           icon={<Trophy className="w-4 h-4" />}
@@ -56,17 +65,17 @@ export default function HomePage() {
         <ScoresDashboard />
       </section>
 
-      {/* 3. World Cup Highlights */}
+      {/* 4. Latest Highlights */}
       <section>
         <SectionHeader
           icon={<Play className="w-4 h-4" />}
-          title="World Cup Highlights"
+          title="Latest Highlights"
           href="/highlights"
         />
         <HighlightsFeed limit={6} />
       </section>
 
-      {/* 4. Breaking Football News */}
+      {/* 5. Breaking Football News */}
       <section>
         <SectionHeader
           icon={<Newspaper className="w-4 h-4" />}
@@ -74,15 +83,6 @@ export default function HomePage() {
           href="/news"
         />
         <NewsSection limit={5} />
-      </section>
-
-      {/* 5. Explore Competitions */}
-      <section>
-        <SectionHeader
-          icon={<Compass className="w-4 h-4" />}
-          title="Explore Competitions"
-        />
-        <CompetitionCards />
       </section>
     </div>
   );

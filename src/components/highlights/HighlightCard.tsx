@@ -32,7 +32,20 @@ export function HighlightCard({ highlight, index, onPlay, isPlaying }: Highlight
             alt={highlight.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+            onError={(e) => {
+              const img = e.currentTarget as HTMLImageElement;
+              const embedUrl = highlight.embedUrl;
+              if (embedUrl && embedUrl.includes("vibedailyhighlights") && !img.dataset.fallbackTried) {
+                const embedIdMatch = embedUrl.match(/vibedailyhighlights\.com\/embed\/([A-Za-z0-9]+)/);
+                const subdomainMatch = embedUrl.match(/https:\/\/([^.]+)\./);
+                if (embedIdMatch && subdomainMatch) {
+                  img.dataset.fallbackTried = "1";
+                  img.src = `https://${subdomainMatch[1]}.vibedailyhighlights.com/embed/image/${embedIdMatch[1]}`;
+                  return;
+                }
+              }
+              img.style.display = "none";
+            }}
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center gap-2 bg-gradient-to-br from-pitch-green/20 to-pitch-blue/20 p-4">
