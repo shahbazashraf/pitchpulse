@@ -11,6 +11,7 @@ jobs:
     steps:
       - name: Ping highlights cron
         run: |
-          curl -sf \
+          curl -sf --max-time 30 \
             "${{ secrets.APP_URL }}/api/cron/highlights?secret=${{ secrets.CRON_SECRET }}" \
-            -w "\nHTTP %{http_code}" || echo "Failed (non-critical)"
+            -w "\nHTTP %{http_code}" \
+            && echo "Success" || echo "Failed (non-critical)"

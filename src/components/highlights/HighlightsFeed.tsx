@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import clsx from "clsx";
-import { useHighlights } from "@/hooks/useHighlights";
+import { useHoofootHighlights } from "@/hooks/useHoofootHighlights";
 import { HighlightCard } from "./HighlightCard";
 import { HighlightPlayer } from "./HighlightPlayer";
 import { Highlight } from "@/types";
@@ -32,14 +32,18 @@ function SkeletonGrid({ count }: { count: number }) {
   );
 }
 
-export function HighlightsFeed({ limit = 12, showYearTabs = false, competition, page = 0 }: HighlightsFeedProps) {
+export function HighlightsFeed({ limit = 12, showYearTabs = false, competition }: HighlightsFeedProps) {
   const [activeYear, setActiveYear] = useState<number | undefined>(undefined);
   const [playingId, setPlayingId] = useState<string | null>(null);
 
-  const offset = page * limit;
-  const { data: rawHighlights, isLoading, isError } = useHighlights(competition, activeYear, limit, offset);
+  const { data: rawHighlights, isLoading, isError } = useHoofootHighlights(limit);
 
-  const highlights: Highlight[] = Array.isArray(rawHighlights) ? rawHighlights : [];
+  const allHighlights: Highlight[] = Array.isArray(rawHighlights) ? rawHighlights : [];
+  const highlights = competition
+    ? allHighlights.filter((h) => h.competition?.toLowerCase().includes(competition.toLowerCase()))
+    : activeYear !== undefined
+    ? allHighlights.filter((h) => h.year === activeYear)
+    : allHighlights;
 
   const playingHighlight = highlights.find((h) => h.id === playingId) ?? null;
 

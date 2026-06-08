@@ -70,7 +70,7 @@ async function fetchVideoEmbed(id: string): Promise<{ embedHash: string; thumbna
   }
 }
 
-export function useHoofootHighlights(limit = 12) {
+export function useHoofootHighlights(limit = 24) {
   return useQuery<Highlight[]>({
     queryKey: ["hoofoot-highlights", limit],
     queryFn: async () => {
