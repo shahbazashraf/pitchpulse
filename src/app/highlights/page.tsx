@@ -1,32 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Film, Youtube, MessageSquare, Video } from "lucide-react";
+import { Film } from "lucide-react";
 import clsx from "clsx";
 import { HighlightsFeed } from "@/components/highlights/HighlightsFeed";
 
 const COMPETITIONS = [
   { label: "All", value: "all" },
   { label: "World Cup", value: "FIFA World Cup" },
-  { label: "Champions League", value: "UEFA Champions League" },
+  { label: "Champions League", value: "Champions League" },
   { label: "Premier League", value: "Premier League" },
   { label: "La Liga", value: "La Liga" },
-];
-
-const SOURCE_BADGES = [
-  { label: "YouTube Official", icon: Youtube, color: "text-red-400 bg-red-400/10 border-red-400/20" },
-  { label: "Reddit Community", icon: MessageSquare, color: "text-orange-400 bg-orange-400/10 border-orange-400/20" },
-  { label: "HooFoot", icon: Video, color: "text-pitch-blue bg-pitch-blue/10 border-pitch-blue/20" },
+  { label: "Serie A", value: "Serie A" },
+  { label: "Bundesliga", value: "Bundesliga" },
+  { label: "Europa League", value: "Europa League" },
 ];
 
 export default function HighlightsPage() {
   const [activeComp, setActiveComp] = useState("all");
-  const [page, setPage] = useState(0);
-
-  function handleCompChange(value: string) {
-    setActiveComp(value);
-    setPage(0); // reset pagination on filter change
-  }
 
   return (
     <div className="space-y-8">
@@ -42,25 +33,12 @@ export default function HighlightsPage() {
           </div>
         </div>
 
-        {/* Source badges */}
-        <div className="flex flex-wrap gap-2">
-          {SOURCE_BADGES.map(({ label, icon: Icon, color }) => (
-            <span
-              key={label}
-              className={clsx("flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border font-medium", color)}
-            >
-              <Icon className="w-3 h-3" />
-              {label}
-            </span>
-          ))}
-        </div>
-
         {/* Competition filter */}
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
           {COMPETITIONS.map(({ label, value }) => (
             <button
               key={value}
-              onClick={() => handleCompChange(value)}
+              onClick={() => setActiveComp(value)}
               className={clsx(
                 "px-4 py-2 rounded-xl text-sm font-semibold border transition-all whitespace-nowrap shrink-0",
                 activeComp === value
@@ -77,20 +55,8 @@ export default function HighlightsPage() {
       {/* Feed */}
       <HighlightsFeed
         limit={24}
-        showYearTabs
         competition={activeComp === "all" ? undefined : activeComp}
-        page={page}
       />
-
-      {/* Load more */}
-      <div className="flex justify-center pb-8">
-        <button
-          onClick={() => setPage((p) => p + 1)}
-          className="px-6 py-2.5 rounded-xl bg-pitch-muted/30 border border-pitch-border/50 text-sm font-semibold text-pitch-text-secondary hover:text-pitch-text-primary hover:border-pitch-border transition-all"
-        >
-          Load more highlights
-        </button>
-      </div>
     </div>
   );
 }

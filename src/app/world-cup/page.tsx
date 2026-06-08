@@ -187,7 +187,7 @@ export default function WorldCupPage() {
           {activeTab === "matches"    && <ScoresDashboard />}
           {activeTab === "knockout"   && <KnockoutBracket />}
           {activeTab === "scorers"    && <TopScorers />}
-          {activeTab === "highlights" && <HighlightsFeed showYearTabs={true} limit={12} />}
+          {activeTab === "highlights" && <HighlightsFeed limit={12} />}
           {activeTab === "news"       && <NewsSection limit={10} />}
         </motion.div>
       </AnimatePresence>
