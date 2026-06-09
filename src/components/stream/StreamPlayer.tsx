@@ -9,10 +9,13 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { StreamSource } from "@/types";
+import type { ScrapedStream } from "@/app/api/scraped-matches/route";
 
 interface StreamPlayerProps {
   matchId: string;
   isLive: boolean;
+  /** When provided, skip the Firestore fetch and use these scraped streams directly */
+  streams?: ScrapedStream[];
 }
 
 const QUALITY_ORDER: Record<string, number> = { "4K": 4, FHD: 3, HD: 2, SD: 1 };
@@ -21,8 +24,42 @@ const PLATFORM_ICON: Record<string, React.ElementType> = {
   web: Globe,
 };
 
-export function StreamPlayer({ matchId, isLive }: StreamPlayerProps) {
-  const { data: streams = [], isLoading } = useMatchStreams(matchId);
+function scrapedToStreamSource(s: ScrapedStream, matchId: string): StreamSource {
+  return {
+    id: s.url,
+    matchId,
+    broadcaster: s.source === "streamseast" ? "StreamEast" : "TotalSportek",
+    broadcasterId: s.source,
+    title: "",
+    url: s.url,
+    embedUrl: s.embed_url,
+    streamType: "live",
+    quality: (s.quality as StreamSource["quality"]) ?? "HD",
+    language: "en",
+    region: [],
+    isOfficial: false,
+    isGeoRestricted: false,
+    requiresAuth: false,
+    requiresSubscription: false,
+    isFree: true,
+    isAvailable: true,
+    availableFrom: null,
+    availableUntil: null,
+    lastVerified: new Date().toISOString(),
+    thumbnailUrl: null,
+    platform: "web",
+    source: s.source,
+  } as StreamSource;
+}
+
+export function StreamPlayer({ matchId, isLive, streams: propStreams }: StreamPlayerProps) {
+  const { data: fetchedStreams = [], isLoading } = useMatchStreams(
+    propStreams ? "" : matchId,
+  );
+
+  const streams: StreamSource[] = propStreams
+    ? propStreams.map((s) => scrapedToStreamSource(s, matchId))
+    : fetchedStreams;
   const [activeStream, setActiveStream] = useState<StreamSource | null>(null);
   const [embedExpanded, setEmbedExpanded] = useState(false);
 
@@ -52,8 +89,42 @@ export function StreamPlayer({ matchId, isLive }: StreamPlayerProps) {
 
   return (
     <div className="space-y-3">
-      {/* Embed player */}
+      {/* Embed player - YouTube */}
       {selected?.embedUrl && selected.platform === "youtube" && (
+        <div className="rounded-2xl overflow-hidden border border-pitch-border/60 bg-black">
+          <div className="relative pt-[56.25%]">
+            <iframe
+              key={selected.id}
+              src={selected.embedUrl}
+              className="absolute inset-0 w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              title={selected.title}
+            />
+          </div>
+          <div className="px-4 py-2.5 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-pitch-text-secondary">{selected.broadcaster}</span>
+              {selected.isFree && (
+                <span className="text-[10px] bg-pitch-green/15 text-pitch-green border border-pitch-green/25 px-1.5 py-0.5 rounded-full font-medium">
+                  FREE
+                </span>
+              )}
+            </div>
+            <a
+              href={selected.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-xs text-pitch-text-muted hover:text-pitch-text-secondary transition-colors"
+            >
+              Open <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* Embed player - Web (streamseast, totalsportek) */}
+      {selected?.embedUrl && selected.platform === "web" && (
         <div className="rounded-2xl overflow-hidden border border-pitch-border/60 bg-black">
           <div className="relative pt-[56.25%]">
             <iframe
@@ -150,7 +221,7 @@ export function StreamPlayer({ matchId, isLive }: StreamPlayerProps) {
                       key={stream.id}
                       stream={stream}
                       isActive={false}
-                      onSelect={() => {}}
+                      onSelect={() => { }}
                       disabled
                     />
                   ))}
@@ -186,9 +257,9 @@ function StreamRow({ stream, isActive, onSelect, disabled = false }: StreamRowPr
   const Icon = PLATFORM_ICON[stream.platform] ?? Globe;
   const qualityColors: Record<string, string> = {
     "4K": "text-purple-400 bg-purple-400/10 border-purple-400/20",
-    FHD:  "text-pitch-blue bg-pitch-blue/10 border-pitch-blue/20",
-    HD:   "text-pitch-green bg-pitch-green/10 border-pitch-green/20",
-    SD:   "text-pitch-text-muted bg-pitch-muted/30 border-pitch-border/40",
+    FHD: "text-pitch-blue bg-pitch-blue/10 border-pitch-blue/20",
+    HD: "text-pitch-green bg-pitch-green/10 border-pitch-green/20",
+    SD: "text-pitch-text-muted bg-pitch-muted/30 border-pitch-border/40",
   };
 
   return (

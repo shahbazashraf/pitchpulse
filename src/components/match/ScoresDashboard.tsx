@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLiveMatches, useMatchesByDate } from "@/hooks/useMatches";
+import { useScrapedMatches, type ScrapedMatch } from "@/hooks/useScrapedMatches";
 import MatchCard from "@/components/match/MatchCard";
 import { cn, getDateString } from "@/lib/utils";
-import { Loader2, RefreshCw, Radio, Trophy } from "lucide-react";
+import { RefreshCw, Radio, Trophy } from "lucide-react";
 import type { NormalizedMatch } from "@/types";
 import { WC_FIXTURES, WC_TEAMS } from "@/lib/worldcup2026/data";
 import Link from "next/link";
@@ -103,7 +104,13 @@ function getWCDateTabs(): { date: string; label: string }[] {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function CompetitionGroup({ matches }: { matches: NormalizedMatch[] }) {
+function CompetitionGroup({
+  matches,
+  scrapedMap = {},
+}: {
+  matches: NormalizedMatch[];
+  scrapedMap?: Record<string, ScrapedMatch>;
+}) {
   const first = matches[0];
   const compLabel = first.competitionId
     ?.replace("fifa-world-cup-2026", "FIFA World Cup 2026")
@@ -119,16 +126,20 @@ function CompetitionGroup({ matches }: { matches: NormalizedMatch[] }) {
         <div className="flex-1 h-px bg-pitch-border/50" />
       </div>
       <div className="space-y-1.5">
-        {matches.map((match, i) => (
-          <motion.div
-            key={match.id}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.04, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <MatchCard match={match} />
-          </motion.div>
-        ))}
+        {matches.map((match, i) => {
+          const key = `${match.homeTeam.name.toLowerCase()}:${match.awayTeam.name.toLowerCase()}`;
+          const scraped = scrapedMap[key];
+          return (
+            <motion.div
+              key={match.id}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.04, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <MatchCard match={match} hasStreams={(scraped?.streams.length ?? 0) > 0} />
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   );
@@ -188,6 +199,13 @@ export default function ScoresDashboard() {
   const { data: dayMatches = [], isLoading, isFetching } = useMatchesByDate(
     mode === "dates" ? selectedDate : wcDate
   );
+
+  // Scraped matches — used to attach stream badges to match cards
+  const { data: scrapedData } = useScrapedMatches();
+  const scrapedMap: Record<string, ScrapedMatch> = {};
+  for (const m of scrapedData?.matches ?? []) {
+    scrapedMap[`${m.homeTeam.toLowerCase()}:${m.awayTeam.toLowerCase()}`] = m;
+  }
 
   // ── Date mode ──
   const allMatches: NormalizedMatch[] = isToday && mode === "dates"
@@ -332,7 +350,7 @@ export default function ScoresDashboard() {
               className="space-y-4"
             >
               {Object.entries(grouped).map(([compId, matches]) => (
-                <CompetitionGroup key={compId} matches={matches} />
+                <CompetitionGroup key={compId} matches={matches} scrapedMap={scrapedMap} />
               ))}
             </motion.div>
           </AnimatePresence>
@@ -350,7 +368,7 @@ export default function ScoresDashboard() {
             className="space-y-4"
           >
             {Object.entries(wcGrouped).map(([compId, matches]) => (
-              <CompetitionGroup key={compId} matches={matches} />
+              <CompetitionGroup key={compId} matches={matches} scrapedMap={scrapedMap} />
             ))}
           </motion.div>
         </AnimatePresence>

@@ -1,0 +1,523 @@
+{
+  "scraped_at": "2026-06-09T18:03:18.426268+00:00",
+  "total": 22,
+  "live": 3,
+  "upcoming": 12,
+  "finished": 7,
+  "matches": [
+    {
+      "id": "3f6bf5ac5982e9133b36",
+      "title": "China vs Thailand",
+      "home_team": "China",
+      "away_team": "Thailand",
+      "competition": "International Friendly",
+      "status": "LIVE",
+      "score": {
+        "home": 0,
+        "away": 0
+      },
+      "minute": "90",
+      "start_time": null,
+      "is_live": true,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401873247/china-vs-thailand",
+          "embed_url": "https://streamseast.biz/soccer/401873247/china-vs-thailand",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:02:55.597276+00:00"
+    },
+    {
+      "id": "22218e945b496f704f26",
+      "title": "Armenia vs Moldova",
+      "home_team": "Armenia",
+      "away_team": "Moldova",
+      "competition": "International Friendly",
+      "status": "LIVE",
+      "score": {
+        "home": 0,
+        "away": 0
+      },
+      "minute": "78",
+      "start_time": null,
+      "is_live": true,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401866138/armenia-vs-moldova",
+          "embed_url": "https://streamseast.biz/soccer/401866138/armenia-vs-moldova",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:02:56.358409+00:00"
+    },
+    {
+      "id": "72099f57b79ceaa3be51",
+      "title": "Congo Dr vs Chile",
+      "home_team": "Congo Dr",
+      "away_team": "Chile",
+      "competition": "International Friendly",
+      "status": "LIVE",
+      "score": {
+        "home": 0,
+        "away": 1
+      },
+      "minute": "59",
+      "start_time": null,
+      "is_live": true,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401871171/congo-dr-vs-chile",
+          "embed_url": "https://streamseast.biz/soccer/401871171/congo-dr-vs-chile",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:02:58.394101+00:00"
+    },
+    {
+      "id": "5edc6e1a0029e11d2e7a",
+      "title": "Eq Guinea vs Comoros",
+      "home_team": "Eq Guinea",
+      "away_team": "Comoros",
+      "competition": "International Friendly",
+      "status": "NS",
+      "score": null,
+      "minute": null,
+      "start_time": null,
+      "is_live": false,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401873676/eq-guinea-vs-comoros",
+          "embed_url": "https://streamseast.biz/soccer/401873676/eq-guinea-vs-comoros",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:02:56.399986+00:00"
+    },
+    {
+      "id": "f47927d54ee9bf28f75e",
+      "title": "Russia vs Trin Tob",
+      "home_team": "Russia",
+      "away_team": "Trin Tob",
+      "competition": "International Friendly",
+      "status": "NS",
+      "score": null,
+      "minute": null,
+      "start_time": null,
+      "is_live": false,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401870855/russia-vs-trin-tob",
+          "embed_url": "https://streamseast.biz/soccer/401870855/russia-vs-trin-tob",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:02:57.197734+00:00"
+    },
+    {
+      "id": "b7e82fe442e20ce3ebdf",
+      "title": "Ethiopia vs Malawi",
+      "home_team": "Ethiopia",
+      "away_team": "Malawi",
+      "competition": "International Friendly",
+      "status": "NS",
+      "score": null,
+      "minute": null,
+      "start_time": null,
+      "is_live": false,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401873738/ethiopia-vs-malawi",
+          "embed_url": "https://streamseast.biz/soccer/401873738/ethiopia-vs-malawi",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:02:58.329684+00:00"
+    },
+    {
+      "id": "0fc2b2aeb9a28dfb667c",
+      "title": "Belarus vs Burkina Faso",
+      "home_team": "Belarus",
+      "away_team": "Burkina Faso",
+      "competition": "International Friendly",
+      "status": "NS",
+      "score": null,
+      "minute": null,
+      "start_time": null,
+      "is_live": false,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401871492/belarus-vs-burkina-faso",
+          "embed_url": "https://streamseast.biz/soccer/401871492/belarus-vs-burkina-faso",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:02:58.646606+00:00"
+    },
+    {
+      "id": "3e1b4f956d8743ca3a4e",
+      "title": "Hungary vs Kazakhstan",
+      "home_team": "Hungary",
+      "away_team": "Kazakhstan",
+      "competition": "International Friendly",
+      "status": "NS",
+      "score": null,
+      "minute": null,
+      "start_time": null,
+      "is_live": false,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401861661/hungary-vs-kazakhstan",
+          "embed_url": "https://streamseast.biz/soccer/401861661/hungary-vs-kazakhstan",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:02:58.684665+00:00"
+    },
+    {
+      "id": "c9cd629c41d345151830",
+      "title": "Nautico vs Fortaleza",
+      "home_team": "Nautico",
+      "away_team": "Fortaleza",
+      "competition": "Brazilian Serie B",
+      "status": "NS",
+      "score": null,
+      "minute": null,
+      "start_time": null,
+      "is_live": false,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401860175/nautico-vs-fortaleza",
+          "embed_url": "https://streamseast.biz/soccer/401860175/nautico-vs-fortaleza",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:02:59.309612+00:00"
+    },
+    {
+      "id": "7ca57cda10b60ada1d19",
+      "title": "Ponte Preta vs Cuiaba",
+      "home_team": "Ponte Preta",
+      "away_team": "Cuiaba",
+      "competition": "Brazilian Serie B",
+      "status": "NS",
+      "score": null,
+      "minute": null,
+      "start_time": null,
+      "is_live": false,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401860173/ponte-preta-vs-cuiaba",
+          "embed_url": "https://streamseast.biz/soccer/401860173/ponte-preta-vs-cuiaba",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:02:59.342517+00:00"
+    },
+    {
+      "id": "455080c084eb6e4b136c",
+      "title": "Saudi Arabia vs Senegal",
+      "home_team": "Saudi Arabia",
+      "away_team": "Senegal",
+      "competition": "International Friendly",
+      "status": "NS",
+      "score": null,
+      "minute": null,
+      "start_time": null,
+      "is_live": false,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401871362/saudi-arabia-vs-senegal",
+          "embed_url": "https://streamseast.biz/soccer/401871362/saudi-arabia-vs-senegal",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:03:00.451487+00:00"
+    },
+    {
+      "id": "03ccbb3bb99de9bad954",
+      "title": "Iraq vs Venezuela",
+      "home_team": "Iraq",
+      "away_team": "Venezuela",
+      "competition": "International Friendly",
+      "status": "NS",
+      "score": null,
+      "minute": null,
+      "start_time": null,
+      "is_live": false,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401873603/iraq-vs-venezuela",
+          "embed_url": "https://streamseast.biz/soccer/401873603/iraq-vs-venezuela",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:03:00.906022+00:00"
+    },
+    {
+      "id": "d2324e97547e52f2c703",
+      "title": "Argentina vs Iceland",
+      "home_team": "Argentina",
+      "away_team": "Iceland",
+      "competition": "International Friendly",
+      "status": "NS",
+      "score": null,
+      "minute": null,
+      "start_time": null,
+      "is_live": false,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401867950/argentina-vs-iceland",
+          "embed_url": "https://streamseast.biz/soccer/401867950/argentina-vs-iceland",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:03:01.364688+00:00"
+    },
+    {
+      "id": "2f34892c3c2200c832ea",
+      "title": "Angola vs Cent Afr Rep",
+      "home_team": "Angola",
+      "away_team": "Cent Afr Rep",
+      "competition": "International Friendly",
+      "status": "NS",
+      "score": null,
+      "minute": null,
+      "start_time": null,
+      "is_live": false,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401873740/angola-vs-cent-afr-rep",
+          "embed_url": "https://streamseast.biz/soccer/401873740/angola-vs-cent-afr-rep",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:03:02.593253+00:00"
+    },
+    {
+      "id": "c13892a75b283c11b81a",
+      "title": "Azerbaijan vs San Marino",
+      "home_team": "Azerbaijan",
+      "away_team": "San Marino",
+      "competition": "International Friendly",
+      "status": "NS",
+      "score": null,
+      "minute": null,
+      "start_time": null,
+      "is_live": false,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401871580/azerbaijan-vs-san-marino",
+          "embed_url": "https://streamseast.biz/soccer/401871580/azerbaijan-vs-san-marino",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:03:18.410306+00:00"
+    },
+    {
+      "id": "700baa7b434a623e5397",
+      "title": "Philippines vs Myanmar",
+      "home_team": "Philippines",
+      "away_team": "Myanmar",
+      "competition": "International Friendly",
+      "status": "FT",
+      "score": {
+        "home": 5,
+        "away": 1
+      },
+      "minute": null,
+      "start_time": null,
+      "is_live": false,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401873736/philippines-vs-myanmar",
+          "embed_url": "https://streamseast.biz/soccer/401873736/philippines-vs-myanmar",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:02:55.399790+00:00"
+    },
+    {
+      "id": "0c53f909db4f63287b66",
+      "title": "Indonesia vs Mozambique",
+      "home_team": "Indonesia",
+      "away_team": "Mozambique",
+      "competition": "International Friendly",
+      "status": "FT",
+      "score": {
+        "home": 1,
+        "away": 0
+      },
+      "minute": null,
+      "start_time": null,
+      "is_live": false,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401873677/indonesia-vs-mozambique",
+          "embed_url": "https://streamseast.biz/soccer/401873677/indonesia-vs-mozambique",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:02:55.433333+00:00"
+    },
+    {
+      "id": "c03d0121978791031531",
+      "title": "Cambodia vs Hong Kong",
+      "home_team": "Cambodia",
+      "away_team": "Hong Kong",
+      "competition": "International Friendly",
+      "status": "FT",
+      "score": {
+        "home": 2,
+        "away": 0
+      },
+      "minute": null,
+      "start_time": null,
+      "is_live": false,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401873742/cambodia-vs-hong-kong",
+          "embed_url": "https://streamseast.biz/soccer/401873742/cambodia-vs-hong-kong",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:02:55.580132+00:00"
+    },
+    {
+      "id": "8269bde9393c480f29fc",
+      "title": "Oman vs Kuwait",
+      "home_team": "Oman",
+      "away_team": "Kuwait",
+      "competition": "International Friendly",
+      "status": "FT",
+      "score": {
+        "home": 0,
+        "away": 0
+      },
+      "minute": null,
+      "start_time": null,
+      "is_live": false,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401873743/oman-vs-kuwait",
+          "embed_url": "https://streamseast.biz/soccer/401873743/oman-vs-kuwait",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:02:55.640464+00:00"
+    },
+    {
+      "id": "a077bf21cfba69872079",
+      "title": "Bahrain vs Syria",
+      "home_team": "Bahrain",
+      "away_team": "Syria",
+      "competition": "International Friendly",
+      "status": "FT",
+      "score": {
+        "home": 0,
+        "away": 0
+      },
+      "minute": null,
+      "start_time": null,
+      "is_live": false,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401873744/bahrain-vs-syria",
+          "embed_url": "https://streamseast.biz/soccer/401873744/bahrain-vs-syria",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:02:56.378005+00:00"
+    },
+    {
+      "id": "c797be4b7f4d1a4b8d36",
+      "title": "Tanzania vs Rwanda",
+      "home_team": "Tanzania",
+      "away_team": "Rwanda",
+      "competition": "International Friendly",
+      "status": "FT",
+      "score": {
+        "home": 0,
+        "away": 0
+      },
+      "minute": null,
+      "start_time": null,
+      "is_live": false,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401874100/tanzania-vs-rwanda",
+          "embed_url": "https://streamseast.biz/soccer/401874100/tanzania-vs-rwanda",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:02:58.438855+00:00"
+    },
+    {
+      "id": "5fc70a0a8f7ef4e7126a",
+      "title": "Kyrgyz Rep vs Palestine",
+      "home_team": "Kyrgyz Rep",
+      "away_team": "Palestine",
+      "competition": "International Friendly",
+      "status": "FT",
+      "score": {
+        "home": 0,
+        "away": 0
+      },
+      "minute": null,
+      "start_time": null,
+      "is_live": false,
+      "streams": [
+        {
+          "url": "https://streamseast.biz/soccer/401873508/kyrgyz-rep-vs-palestine",
+          "embed_url": "https://streamseast.biz/soccer/401873508/kyrgyz-rep-vs-palestine",
+          "quality": "HD",
+          "source": "streamseast",
+          "priority": 1
+        }
+      ],
+      "scraped_at": "2026-06-09T18:03:04.281816+00:00"
+    }
+  ]
+}

@@ -49,6 +49,10 @@ from dotenv import load_dotenv
 dotenv_path = Path(__file__).resolve().parents[3] / '.env.local'
 load_dotenv(dotenv_path)
 
+# Import discoverers
+from .totalsportek_discoverer import TotalsportekDiscoverer
+from .streamseast_discoverer import StreamseastDiscoverer
+
 # ─── Config ───────────────────────────────────────────────────────────────────
 
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY", "")
@@ -643,6 +647,8 @@ class StreamDiscoveryService:
             YouTubeDiscoverer,
             BBCiPlayerDiscoverer,
             FIFAPlusDiscoverer,
+            TotalsportekDiscoverer,
+            StreamseastDiscoverer,
         ]
 
     async def discover_for_match(self, match: dict) -> list[dict]:
