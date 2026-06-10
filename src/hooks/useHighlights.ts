@@ -9,19 +9,21 @@ export function useHighlights(
   competition?: string,
   year?: number,
   limit = 12,
-  offset = 0
+  offset = 0,
+  excludeOfficial?: boolean
 ) {
   return useQuery<Highlight[]>({
-    queryKey: ["highlights", competition ?? "all", year ?? "all", limit, offset],
+    queryKey: ["highlights", competition ?? "all", year ?? "all", limit, offset, excludeOfficial ?? false],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (competition) params.set("competition", competition);
       if (year) params.set("year", String(year));
+      if (excludeOfficial) params.set("excludeOfficial", "true");
       params.set("limit", String(limit));
       if (offset > 0) params.set("offset", String(offset));
 
       const url = `/api/highlights?${params}`;
-      console.log(`${LOG} Fetching competition=${competition ?? "all"} limit=${limit}`, url);
+      console.log(`${LOG} Fetching competition=${competition ?? "all"} limit=${limit} excludeOfficial=${excludeOfficial ?? false}`, url);
 
       const res = await fetch(url);
 

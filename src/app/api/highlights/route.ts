@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cache, TTL, CacheKey } from "@/lib/cache";
 import { Highlight } from "@/types";
+import { isOfficialHighlight } from "@/lib/utils";
 
 export const runtime = "nodejs";
 
@@ -178,12 +179,13 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const competition = searchParams.get("competition") ?? "all";
   const year = searchParams.get("year") ?? "all";
+  const excludeOfficial = searchParams.get("excludeOfficial") === "true";
   const limit = Math.min(parseInt(searchParams.get("limit") ?? "12"), 50);
   const offset = Math.max(parseInt(searchParams.get("offset") ?? "0"), 0);
 
-  console.log(`${LOG} GET competition=${competition} year=${year} limit=${limit} offset=${offset}`);
+  console.log(`${LOG} GET competition=${competition} year=${year} excludeOfficial=${excludeOfficial} limit=${limit} offset=${offset}`);
 
-  const cacheKey = CacheKey.highlights(competition, year, limit) + `:${offset}`;
+  const cacheKey = CacheKey.highlights(competition, year, limit, excludeOfficial) + `:${offset}`;
   const cached = await cache.get<Highlight[]>(cacheKey);
   if (cached && Array.isArray(cached)) {
     console.log(`${LOG} Cache HIT — returning ${cached.length} highlights`);
@@ -198,11 +200,13 @@ export async function GET(req: NextRequest) {
   const db = getFirebaseAdmin();
   if (db) {
     try {
+      // When excluding official highlights, fetch more to ensure we get enough results
+      const fetchLimit = excludeOfficial ? limit * 3 : limit;
       let query = db
         .collection("highlights")
         .orderBy("publishedAt", "desc")
         .offset(offset)
-        .limit(limit);
+        .limit(fetchLimit);
 
       if (competition !== "all") {
         query = query.where("competition", "==", competition);
@@ -227,12 +231,21 @@ export async function GET(req: NextRequest) {
     console.warn(`${LOG} No Firestore client — skipping DB query`);
   }
 
+  // Apply excludeOfficial filter if requested
+  if (excludeOfficial) {
+    highlights = highlights.filter((h) => !isOfficialHighlight(h));
+    // Slice to the requested limit after filtering
+    highlights = highlights.slice(0, limit);
+    console.log(`${LOG} After excludeOfficial filter: ${highlights.length} highlights`);
+  }
+
   // Static fallback when Firestore empty
   if (highlights.length === 0 && offset === 0) {
     console.warn(`${LOG} Firestore empty or failed — using static fallback`);
     highlights = STATIC_FALLBACK.filter((h) => {
       if (competition !== "all" && !h.competition.toLowerCase().includes(competition.toLowerCase())) return false;
       if (year !== "all" && h.year !== parseInt(year)) return false;
+      if (excludeOfficial && isOfficialHighlight(h)) return false;
       return true;
     }).slice(0, limit);
     source = "static";

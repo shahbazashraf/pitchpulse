@@ -39,7 +39,14 @@ export function HighlightsFeed({
 }: HighlightsFeedProps) {
   const [playingId, setPlayingId] = useState<string | null>(null);
 
-  const { data: rawHighlights, isLoading, isError } = useHighlights(competition, undefined, limit, offset);
+  // Pass excludeOfficial to API for server-side filtering
+  const { data: rawHighlights, isLoading, isError } = useHighlights(
+    competition,
+    undefined,
+    limit,
+    offset,
+    excludeOfficial ? true : undefined
+  );
 
   useEffect(() => {
     if (isError) {
@@ -56,20 +63,20 @@ export function HighlightsFeed({
 
   const allHighlights: Highlight[] = Array.isArray(rawHighlights) ? rawHighlights : [];
 
-  // Apply filters in order: search → official/exclude
+  // Apply only search filter client-side (search is not passed to API)
   let highlights = search?.trim()
     ? allHighlights.filter((h) => {
-        const q = search.toLowerCase();
-        return (
-          h.title?.toLowerCase().includes(q) ||
-          h.homeTeam?.toLowerCase().includes(q) ||
-          h.awayTeam?.toLowerCase().includes(q)
-        );
-      })
+      const q = search.toLowerCase();
+      return (
+        h.title?.toLowerCase().includes(q) ||
+        h.homeTeam?.toLowerCase().includes(q) ||
+        h.awayTeam?.toLowerCase().includes(q)
+      );
+    })
     : allHighlights;
 
+  // Apply officialOnly filter client-side (for UI-specific filtering)
   if (officialOnly) highlights = highlights.filter(isOfficialHighlight);
-  if (excludeOfficial) highlights = highlights.filter((h) => !isOfficialHighlight(h));
 
   const playingHighlight = highlights.find((h) => h.id === playingId) ?? null;
 

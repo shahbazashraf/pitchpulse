@@ -82,7 +82,6 @@ export default function HighlightsPage() {
         offset={page * PAGE_SIZE}
         competition={activeComp === "all" ? undefined : activeComp}
         search={search}
-        excludeOfficial
         onHasMoreChange={handleHasMoreChange}
       />
 
