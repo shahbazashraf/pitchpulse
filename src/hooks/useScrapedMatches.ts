@@ -32,9 +32,7 @@ interface ScrapedMatchesResponse {
 }
 
 function getToday(): string {
-  const d = new Date();
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}`;
+  return new Date().toISOString().split("T")[0]; // "2026-06-10"
 }
 
 function getTs(): string {

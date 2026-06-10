@@ -44,7 +44,7 @@ interface KoraMatch {
 }
 
 function today(): string {
-  return new Date().toISOString().split("T")[0].replace(/-/g, "");
+  return new Date().toISOString().split("T")[0]; // "2026-06-10"
 }
 
 function ts(): string {
