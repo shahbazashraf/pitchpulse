@@ -5,6 +5,7 @@
  */
 import type { FootballProvider } from "./base";
 import type { ProviderResult, ProviderHealth } from "@/types";
+import { EspnProvider } from "./espn";
 import { ApiFootballProvider } from "./api-football";
 import { FootballDataProvider } from "./football-data";
 
@@ -20,6 +21,7 @@ export class ProviderRegistry {
 
   constructor() {
     this.providers = [
+      new EspnProvider(),
       new ApiFootballProvider(),
       new FootballDataProvider(),
     ].sort((a, b) => a.priority - b.priority);

@@ -126,7 +126,7 @@ function NewsSectionSkeleton() {
 const FALLBACK_ARTICLE: NewsArticle = {
   id: "fallback-wc26",
   headline: "FIFA World Cup 2026 — Everything you need to know",
-  summary: "The biggest World Cup ever. 48 teams, 104 matches, 16 cities across the USA, Canada, and Mexico. Follow every match live on PitchPulse.",
+  summary: "The biggest World Cup ever. 48 teams, 104 matches, 16 cities across the USA, Canada, and Mexico. Follow every match live with real-time scores, highlights, and AI-powered commentary.",
   body: null,
   source: "fifa",
   sourceName: "FIFA",

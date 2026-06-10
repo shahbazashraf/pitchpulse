@@ -14,9 +14,10 @@ Football platform targeting World Cup 2026. Live scores, highlights aggregation,
 
 ## Football Data Providers
 Provider registry pattern with automatic fallback chain:
-- **Primary**: API-Football (api-football.com) — 100 req/day free
+- **Priority 0**: ESPN hidden public API (`src/lib/providers/espn/index.ts`) — **no API key**, no rate limit, covers all major leagues + UCL + internationals. League slugs: eng.1, esp.1, ger.1, ita.1, fra.1, uefa.champions, uefa.europa, usa.1
+- **Priority 1**: API-Football (api-football.com) — 100 req/day free
 - **Fallback**: Football-Data.org — 10 req/min free
-- **World Cup**: WC2026 API (wc2026api.com) — 100 req/day free
+- **World Cup**: WC2026 API (wc2026api.com) — 100 req/day free (runs in parallel, not via registry)
 - Interface: `src/lib/providers/base.ts`, registry: `src/lib/providers/registry.ts`
 
 ## AI / LLM
@@ -93,6 +94,9 @@ NEXT_PUBLIC_APP_NAME=PitchPulse
 - **Highlights dedup**: SHA256 hash of URL prevents duplicates on repeated cron runs
 - **No Supabase here** — this project uses Firebase, not Supabase (global default doesn't apply)
 - **No shadcn/ui** — uses Radix UI primitives directly with custom Tailwind classes
+- **isOfficialHighlight()**: utility in `src/lib/utils.ts` — detects FIFA/UEFA highlights by `provider` or `competition` field; used by `HighlightsFeed` props `officialOnly`/`excludeOfficial`
+- **Footer**: `src/components/layout/Footer.tsx` — premium multi-section footer with WC2026 countdown, back-to-top, newsletter, trending searches
+- **FIFA/UEFA section**: homepage shows `<HighlightsFeed officialOnly />` under "FIFA/UEFA" heading; regular feed uses `excludeOfficial`
 
 ## Design System
 - Electric green `#00E676` (primary accent), electric blue `#0EA5E9`

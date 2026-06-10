@@ -1,4 +1,4 @@
-import { Trophy, Play, Newspaper, Compass } from "lucide-react";
+import { Trophy, Play, Newspaper, Compass, Shield } from "lucide-react";
 import Link from "next/link";
 import ScoresDashboard from "@/components/match/ScoresDashboard";
 import { WorldCupHero } from "@/components/match/WorldCupHero";
@@ -24,10 +24,11 @@ function SectionHeader({
   return (
     <div className="flex items-center justify-between mb-4">
       <div className="flex items-center gap-2">
+        <div className="w-[3px] h-5 rounded-full bg-pitch-green/70 shrink-0" />
         <div className="w-8 h-8 rounded-lg bg-pitch-green/15 border border-pitch-green/20 flex items-center justify-center text-pitch-green">
           {icon}
         </div>
-        <h2 className="text-xl font-bold text-pitch-text-primary">{title}</h2>
+        <h2 className="text-2xl font-bold text-pitch-text-primary">{title}</h2>
       </div>
       {href && (
         <Link
@@ -43,7 +44,7 @@ function SectionHeader({
 
 export default function HomePage() {
   return (
-    <div className="space-y-10">
+    <div className="space-y-12 pt-2">
       {/* 1. World Cup Hero */}
       <WorldCupHero />
 
@@ -65,17 +66,27 @@ export default function HomePage() {
         <ScoresDashboard />
       </section>
 
-      {/* 4. Latest Highlights */}
+      {/* 4. FIFA/UEFA official highlights */}
+      <section>
+        <SectionHeader
+          icon={<Shield className="w-4 h-4" />}
+          title="FIFA/UEFA"
+          href="/highlights"
+        />
+        <HighlightsFeed limit={4} officialOnly />
+      </section>
+
+      {/* 5. Latest Highlights — excludes UEFA/FIFA official videos */}
       <section>
         <SectionHeader
           icon={<Play className="w-4 h-4" />}
           title="Latest Highlights"
           href="/highlights"
         />
-        <HighlightsFeed limit={6} />
+        <HighlightsFeed limit={6} excludeOfficial />
       </section>
 
-      {/* 5. Breaking Football News */}
+      {/* 6. Breaking Football News */}
       <section>
         <SectionHeader
           icon={<Newspaper className="w-4 h-4" />}

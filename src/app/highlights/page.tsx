@@ -62,11 +62,12 @@ export default function HighlightsPage() {
         />
       </div>
 
-      {/* Feed */}
+      {/* Feed — excludes official FIFA/UEFA videos (those live in the dedicated section) */}
       <HighlightsFeed
         limit={24}
         competition={activeComp === "all" ? undefined : activeComp}
         search={search}
+        excludeOfficial
       />
     </div>
   );

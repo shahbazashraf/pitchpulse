@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { Highlight } from "@/types";
 
 export function cn(...inputs: ClassValue[]) { return twMerge(clsx(inputs)); }
 
@@ -38,4 +39,17 @@ export function getDateString(offsetDays = 0): string {
   const d = new Date();
   d.setDate(d.getDate() + offsetDays);
   return d.toISOString().split("T")[0];
+}
+
+export function isOfficialHighlight(h: Highlight): boolean {
+  const p = (h.provider ?? "").toLowerCase();
+  const c = (h.competition ?? "").toLowerCase();
+  return (
+    p === "fifa" || p === "uefa" ||
+    c.includes("champions league") ||
+    c.includes("europa league") ||
+    c.includes("conference league") ||
+    c.includes("uefa") ||
+    c.includes("fifa")
+  );
 }

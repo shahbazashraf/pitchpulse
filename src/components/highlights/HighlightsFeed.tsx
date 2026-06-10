@@ -5,12 +5,15 @@ import { useHighlights } from "@/hooks/useHighlights";
 import { HighlightCard } from "./HighlightCard";
 import { HighlightPlayer } from "./HighlightPlayer";
 import { Highlight } from "@/types";
+import { isOfficialHighlight } from "@/lib/utils";
 import { AlertCircle } from "lucide-react";
 
 interface HighlightsFeedProps {
   limit?: number;
   competition?: string;
   search?: string;
+  officialOnly?: boolean;
+  excludeOfficial?: boolean;
 }
 
 function SkeletonGrid({ count }: { count: number }) {
@@ -23,7 +26,13 @@ function SkeletonGrid({ count }: { count: number }) {
   );
 }
 
-export function HighlightsFeed({ limit = 24, competition, search }: HighlightsFeedProps) {
+export function HighlightsFeed({
+  limit = 24,
+  competition,
+  search,
+  officialOnly,
+  excludeOfficial,
+}: HighlightsFeedProps) {
   const [playingId, setPlayingId] = useState<string | null>(null);
 
   const { data: rawHighlights, isLoading, isError } = useHighlights(competition, undefined, limit);
@@ -34,15 +43,10 @@ export function HighlightsFeed({ limit = 24, competition, search }: HighlightsFe
     }
   }, [isError, competition, limit]);
 
-  useEffect(() => {
-    if (!isLoading && rawHighlights !== undefined) {
-      const count = Array.isArray(rawHighlights) ? rawHighlights.length : 0;
-      console.log(`[HighlightsFeed] Rendered ${count} highlights — competition=${competition ?? "all"} search="${search ?? ""}"`);
-    }
-  }, [isLoading, rawHighlights, competition, search]);
-
   const allHighlights: Highlight[] = Array.isArray(rawHighlights) ? rawHighlights : [];
-  const highlights = search?.trim()
+
+  // Apply filters in order: search → official/exclude
+  let highlights = search?.trim()
     ? allHighlights.filter((h) => {
         const q = search.toLowerCase();
         return (
@@ -53,6 +57,9 @@ export function HighlightsFeed({ limit = 24, competition, search }: HighlightsFe
       })
     : allHighlights;
 
+  if (officialOnly) highlights = highlights.filter(isOfficialHighlight);
+  if (excludeOfficial) highlights = highlights.filter((h) => !isOfficialHighlight(h));
+
   const playingHighlight = highlights.find((h) => h.id === playingId) ?? null;
 
   function handlePlay(h: Highlight) {
@@ -61,7 +68,6 @@ export function HighlightsFeed({ limit = 24, competition, search }: HighlightsFe
 
   return (
     <>
-      {/* Grid */}
       <div className="space-y-4">
         {isLoading ? (
           <SkeletonGrid count={Math.min(limit, 6)} />
@@ -87,7 +93,6 @@ export function HighlightsFeed({ limit = 24, competition, search }: HighlightsFe
         )}
       </div>
 
-      {/* Modal player — rendered outside grid so it sits above everything */}
       {playingHighlight && (
         <HighlightPlayer
           highlight={playingHighlight}
