@@ -5,7 +5,6 @@ import { useHighlights } from "@/hooks/useHighlights";
 import { HighlightCard } from "./HighlightCard";
 import { HighlightPlayer } from "./HighlightPlayer";
 import { Highlight } from "@/types";
-import { isOfficialHighlight } from "@/lib/utils";
 import { AlertCircle } from "lucide-react";
 
 interface HighlightsFeedProps {
@@ -39,20 +38,14 @@ export function HighlightsFeed({
 }: HighlightsFeedProps) {
   const [playingId, setPlayingId] = useState<string | null>(null);
 
-  // Pass officialOnly/excludeOfficial to API for server-side filtering
-  const { data: rawHighlights, isLoading, isError } = useHighlights(
-    competition,
-    undefined,
-    limit,
-    offset,
-    officialOnly ? "officialOnly" : excludeOfficial ? "excludeOfficial" : undefined
-  );
+  const provider = officialOnly ? "official" : excludeOfficial ? "others" : undefined;
+  const { data: rawHighlights, isLoading, isError } = useHighlights(competition, undefined, limit, offset, provider);
 
   useEffect(() => {
     if (isError) {
-      console.error(`[HighlightsFeed] Query error — competition=${competition ?? "all"} limit=${limit}`);
+      console.error(`[HighlightsFeed] Query error — competition=${competition ?? "all"} provider=${provider ?? "all"} limit=${limit}`);
     }
-  }, [isError, competition, limit]);
+  }, [isError, competition, provider, limit]);
 
   useEffect(() => {
     if (!isLoading && onHasMoreChange) {
@@ -63,16 +56,15 @@ export function HighlightsFeed({
 
   const allHighlights: Highlight[] = Array.isArray(rawHighlights) ? rawHighlights : [];
 
-  // Apply only search filter client-side (search is not passed to API)
-  let highlights = search?.trim()
+  const highlights = search?.trim()
     ? allHighlights.filter((h) => {
-      const q = search.toLowerCase();
-      return (
-        h.title?.toLowerCase().includes(q) ||
-        h.homeTeam?.toLowerCase().includes(q) ||
-        h.awayTeam?.toLowerCase().includes(q)
-      );
-    })
+        const q = search.toLowerCase();
+        return (
+          h.title?.toLowerCase().includes(q) ||
+          h.homeTeam?.toLowerCase().includes(q) ||
+          h.awayTeam?.toLowerCase().includes(q)
+        );
+      })
     : allHighlights;
 
   const playingHighlight = highlights.find((h) => h.id === playingId) ?? null;

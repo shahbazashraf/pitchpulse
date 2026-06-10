@@ -10,21 +10,20 @@ export function useHighlights(
   year?: number,
   limit = 12,
   offset = 0,
-  filterType?: "officialOnly" | "excludeOfficial"
+  provider?: "official" | "others"
 ) {
   return useQuery<Highlight[]>({
-    queryKey: ["highlights", competition ?? "all", year ?? "all", limit, offset, filterType ?? "none"],
+    queryKey: ["highlights", competition ?? "all", year ?? "all", limit, offset, provider ?? "all"],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (competition) params.set("competition", competition);
       if (year) params.set("year", String(year));
-      if (filterType === "excludeOfficial") params.set("excludeOfficial", "true");
-      if (filterType === "officialOnly") params.set("officialOnly", "true");
       params.set("limit", String(limit));
       if (offset > 0) params.set("offset", String(offset));
+      if (provider) params.set("provider", provider);
 
       const url = `/api/highlights?${params}`;
-      console.log(`${LOG} Fetching competition=${competition ?? "all"} limit=${limit} filterType=${filterType ?? "none"}`, url);
+      console.log(`${LOG} Fetching competition=${competition ?? "all"} provider=${provider ?? "all"} limit=${limit}`, url);
 
       const res = await fetch(url);
 
