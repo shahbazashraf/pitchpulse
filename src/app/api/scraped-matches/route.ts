@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cache, TTL } from "@/lib/cache";
-import { initializeApp, getApps, cert } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
 
 export const runtime = "nodejs";
 
@@ -28,59 +26,105 @@ export interface ScrapedMatch {
   scrapedAt: string;
 }
 
-function getDb() {
-  if (!getApps().length) {
-    const sa = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-    if (sa) initializeApp({ credential: cert(JSON.parse(sa)) });
-    else initializeApp();
-  }
-  return getFirestore();
+interface KoraMatch {
+  id: string;
+  status: number; // 0=upcoming, 1=live, 2=finished, 3=live-extra
+  date: string;   // "2026-06-10"
+  time: string;   // "21:00"
+  score: string;  // "3 - 0" or "-" or ""
+  league_en: string;
+  home_en: string;
+  away_en: string;
+}
+
+function today(): string {
+  return new Date().toISOString().split("T")[0].replace(/-/g, "");
+}
+
+function ts(): string {
+  const d = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}`;
+}
+
+function parseScore(raw: string): { home: number; away: number } | null {
+  const m = raw.match(/(\d+)\s*-\s*(\d+)/);
+  if (!m) return null;
+  return { home: parseInt(m[1], 10), away: parseInt(m[2], 10) };
+}
+
+function mapStatus(s: number): "NS" | "LIVE" | "FT" {
+  if (s === 1 || s === 3) return "LIVE";
+  if (s === 2) return "FT";
+  return "NS";
+}
+
+async function fetchKoraMatches(): Promise<ScrapedMatch[]> {
+  const url = `https://ws.kora-api.space/api/matches/${today()}/1?t=${ts()}`;
+  const res = await fetch(url, {
+    headers: {
+      Referer: "https://hesgoals.eu/",
+      "User-Agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      Accept: "application/json, text/plain, */*",
+    },
+    next: { revalidate: 0 },
+  });
+
+  if (!res.ok) throw new Error(`kora-api ${res.status}`);
+
+  const data = (await res.json()) as { matches: KoraMatch[] };
+  const now = new Date().toISOString();
+
+  return (data.matches ?? []).map((m): ScrapedMatch => {
+    const status = mapStatus(m.status);
+    const isLive = status === "LIVE";
+    const score = parseScore(m.score ?? "");
+    const startTime = m.date && m.time ? `${m.date}T${m.time}:00Z` : null;
+    const streams: ScrapedStream[] = isLive
+      ? [
+          {
+            url: `https://strm01.app/?m=${m.id}&lang=en`,
+            embed_url: null,
+            quality: "HD",
+            source: "hesgoals",
+            priority: 1,
+          },
+        ]
+      : [];
+
+    return {
+      id: String(m.id),
+      title: `${m.home_en} vs ${m.away_en}`,
+      homeTeam: m.home_en,
+      awayTeam: m.away_en,
+      competition: m.league_en || "Football",
+      status,
+      score,
+      minute: null,
+      startTime,
+      isLive,
+      streams,
+      scrapedAt: now,
+    };
+  });
 }
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
-  const statusFilter = searchParams.get("status"); // LIVE | NS | FT | null = all
-  const cacheKey = `scraped-matches:${statusFilter ?? "all"}`;
+  const statusFilter = searchParams.get("status");
+  const cacheKey = `hesgoals-matches:${statusFilter ?? "all"}`;
 
   try {
     const data = await cache.getOrFetch<ScrapedMatch[]>(
       cacheKey,
       async () => {
-        const db = getDb();
-        // Only return matches scraped in the last 3 hours to avoid stale data
-        const staleThreshold = new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString();
-
-        let query = db
-          .collection("scraped_matches")
-          .where("scrapedAt", ">=", staleThreshold)
-          .orderBy("scrapedAt", "desc") as FirebaseFirestore.Query;
-
-        const snap = await query.limit(100).get();
-
-        const matches: ScrapedMatch[] = snap.docs.map((d) => {
-          const doc = d.data();
-          return {
-            id: doc.id ?? d.id,
-            title: doc.title ?? "",
-            homeTeam: doc.homeTeam ?? "",
-            awayTeam: doc.awayTeam ?? "",
-            competition: doc.competition ?? "Football",
-            status: doc.status ?? "NS",
-            score: doc.score ?? null,
-            minute: doc.minute ?? null,
-            startTime: doc.startTime ?? null,
-            isLive: doc.isLive ?? false,
-            streams: (doc.streams ?? []) as ScrapedStream[],
-            scrapedAt: doc.scrapedAt ?? "",
-          };
-        });
-
-        // Apply status filter after fetch (simpler than Firestore filtering)
+        const matches = await fetchKoraMatches();
         return statusFilter
           ? matches.filter((m) => m.status === statusFilter)
           : matches;
       },
-      TTL.LIVE_MATCH, // 15s — fast refresh for live data
+      TTL.LIVE_MATCH,
     );
 
     const live     = data.filter((m) => m.status === "LIVE");
@@ -101,6 +145,9 @@ export async function GET(req: NextRequest) {
       },
     );
   } catch (err) {
-    return NextResponse.json({ error: String(err), matches: [], grouped: { live: [], upcoming: [], finished: [] } }, { status: 503 });
+    return NextResponse.json(
+      { error: String(err), matches: [], grouped: { live: [], upcoming: [], finished: [] } },
+      { status: 503 },
+    );
   }
 }
