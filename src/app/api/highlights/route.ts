@@ -180,12 +180,13 @@ export async function GET(req: NextRequest) {
   const competition = searchParams.get("competition") ?? "all";
   const year = searchParams.get("year") ?? "all";
   const excludeOfficial = searchParams.get("excludeOfficial") === "true";
+  const officialOnly = searchParams.get("officialOnly") === "true";
   const limit = Math.min(parseInt(searchParams.get("limit") ?? "12"), 50);
   const offset = Math.max(parseInt(searchParams.get("offset") ?? "0"), 0);
 
-  console.log(`${LOG} GET competition=${competition} year=${year} excludeOfficial=${excludeOfficial} limit=${limit} offset=${offset}`);
+  console.log(`${LOG} GET competition=${competition} year=${year} excludeOfficial=${excludeOfficial} officialOnly=${officialOnly} limit=${limit} offset=${offset}`);
 
-  const cacheKey = CacheKey.highlights(competition, year, limit, excludeOfficial) + `:${offset}`;
+  const cacheKey = CacheKey.highlights(competition, year, limit, excludeOfficial, officialOnly) + `:${offset}`;
   const cached = await cache.get<Highlight[]>(cacheKey);
   if (cached && Array.isArray(cached)) {
     console.log(`${LOG} Cache HIT — returning ${cached.length} highlights`);
@@ -200,13 +201,11 @@ export async function GET(req: NextRequest) {
   const db = getFirebaseAdmin();
   if (db) {
     try {
-      // When excluding official highlights, fetch more to ensure we get enough results
-      const fetchLimit = excludeOfficial ? limit * 3 : limit;
       let query = db
         .collection("highlights")
         .orderBy("publishedAt", "desc")
         .offset(offset)
-        .limit(fetchLimit);
+        .limit(limit);
 
       if (competition !== "all") {
         query = query.where("competition", "==", competition);
@@ -215,6 +214,19 @@ export async function GET(req: NextRequest) {
       if (year !== "all") {
         query = query.where("year", "==", parseInt(year));
         console.log(`${LOG} Filtering by year=${year}`);
+      }
+
+      // Filter by provider for official/officialOnly
+      if (officialOnly) {
+        // Query for FIFA, UEFA, ESPN providers only
+        query = query.where("provider", "in", ["FIFA", "UEFA", "ESPN"]);
+        console.log(`${LOG} Filtering for officialOnly providers`);
+      } else if (excludeOfficial) {
+        // Query for non-official providers (NOT in FIFA, UEFA, ESPN)
+        // Note: Firestore doesn't support "not in" well, so we filter after fetch
+        // But we can still fetch less data by excluding known official providers
+        query = query.where("provider", "not-in", ["FIFA", "UEFA", "ESPN"]);
+        console.log(`${LOG} Filtering for excludeOfficial providers`);
       }
 
       const snap = await query.get();
@@ -231,12 +243,11 @@ export async function GET(req: NextRequest) {
     console.warn(`${LOG} No Firestore client — skipping DB query`);
   }
 
-  // Apply excludeOfficial filter if requested
-  if (excludeOfficial) {
+  // Fallback for excludeOfficial if "not-in" query didn't work
+  if (excludeOfficial && highlights.length > 0) {
     highlights = highlights.filter((h) => !isOfficialHighlight(h));
-    // Slice to the requested limit after filtering
     highlights = highlights.slice(0, limit);
-    console.log(`${LOG} After excludeOfficial filter: ${highlights.length} highlights`);
+    console.log(`${LOG} After excludeOfficial fallback filter: ${highlights.length} highlights`);
   }
 
   // Static fallback when Firestore empty

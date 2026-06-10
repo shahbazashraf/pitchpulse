@@ -49,8 +49,8 @@ export const CacheKey = {
   news: (page: number, tags: string[]) =>
     `news:${page}:${tags.sort().join(",")}`,
   commentary: (matchId: string) => `commentary:${matchId}`,
-  highlights: (competition: string, year: string, limit: number, excludeOfficial: boolean) =>
-    `highlights:${competition}:${year}:${limit}:${excludeOfficial}`,
+  highlights: (competition: string, year: string, limit: number, excludeOfficial: boolean, officialOnly: boolean) =>
+    `highlights:${competition}:${year}:${limit}:${excludeOfficial}:${officialOnly}`,
 };
 
 // ─── Shared client interface ─────────────────────────────────────────────────

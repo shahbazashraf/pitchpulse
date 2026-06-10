@@ -39,13 +39,13 @@ export function HighlightsFeed({
 }: HighlightsFeedProps) {
   const [playingId, setPlayingId] = useState<string | null>(null);
 
-  // Pass excludeOfficial to API for server-side filtering
+  // Pass officialOnly/excludeOfficial to API for server-side filtering
   const { data: rawHighlights, isLoading, isError } = useHighlights(
     competition,
     undefined,
     limit,
     offset,
-    excludeOfficial ? true : undefined
+    officialOnly ? "officialOnly" : excludeOfficial ? "excludeOfficial" : undefined
   );
 
   useEffect(() => {
@@ -74,9 +74,6 @@ export function HighlightsFeed({
       );
     })
     : allHighlights;
-
-  // Apply officialOnly filter client-side (for UI-specific filtering)
-  if (officialOnly) highlights = highlights.filter(isOfficialHighlight);
 
   const playingHighlight = highlights.find((h) => h.id === playingId) ?? null;
 
