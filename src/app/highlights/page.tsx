@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Film } from "lucide-react";
 import clsx from "clsx";
 import { HighlightsFeed } from "@/components/highlights/HighlightsFeed";
+import { PaginationControls } from "@/components/highlights/PaginationControls";
 
 const COMPETITIONS = [
   { label: "All", value: "all" },
@@ -16,9 +17,22 @@ const COMPETITIONS = [
   { label: "Europa League", value: "Europa League" },
 ];
 
+const PAGE_SIZE = 12;
+
 export default function HighlightsPage() {
   const [activeComp, setActiveComp] = useState("all");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+
+  // Reset to page 0 whenever filter or search changes
+  useEffect(() => {
+    setPage(0);
+  }, [activeComp, search]);
+
+  const handleHasMoreChange = useCallback((value: boolean) => {
+    setHasMore(value);
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -62,12 +76,21 @@ export default function HighlightsPage() {
         />
       </div>
 
-      {/* Feed — excludes official FIFA/UEFA videos (those live in the dedicated section) */}
+      {/* Feed */}
       <HighlightsFeed
-        limit={24}
+        limit={PAGE_SIZE}
+        offset={page * PAGE_SIZE}
         competition={activeComp === "all" ? undefined : activeComp}
         search={search}
-        excludeOfficial
+        onHasMoreChange={handleHasMoreChange}
+      />
+
+      {/* Pagination */}
+      <PaginationControls
+        page={page}
+        hasNext={hasMore}
+        onPrev={() => { setPage((p) => Math.max(0, p - 1)); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+        onNext={() => { setPage((p) => p + 1); window.scrollTo({ top: 0, behavior: "smooth" }); }}
       />
     </div>
   );

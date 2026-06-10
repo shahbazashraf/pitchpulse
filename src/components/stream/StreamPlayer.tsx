@@ -236,7 +236,7 @@ export function StreamPlayer({ matchId, isLive, streams: propStreams }: StreamPl
       <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl bg-pitch-muted/20 border border-pitch-border/40">
         <Info className="w-3.5 h-3.5 text-pitch-text-muted shrink-0 mt-0.5" />
         <p className="text-[11px] text-pitch-text-muted leading-relaxed">
-          PitchPulse only links to official, rights-holder streams. All streams are free-to-air
+          KickStreaming only links to official, rights-holder streams. All streams are free-to-air
           public broadcasts. Geo-restrictions may apply based on your location.
         </p>
       </div>

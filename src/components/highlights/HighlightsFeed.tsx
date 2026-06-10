@@ -10,10 +10,12 @@ import { AlertCircle } from "lucide-react";
 
 interface HighlightsFeedProps {
   limit?: number;
+  offset?: number;
   competition?: string;
   search?: string;
   officialOnly?: boolean;
   excludeOfficial?: boolean;
+  onHasMoreChange?: (hasMore: boolean) => void;
 }
 
 function SkeletonGrid({ count }: { count: number }) {
@@ -28,20 +30,29 @@ function SkeletonGrid({ count }: { count: number }) {
 
 export function HighlightsFeed({
   limit = 24,
+  offset = 0,
   competition,
   search,
   officialOnly,
   excludeOfficial,
+  onHasMoreChange,
 }: HighlightsFeedProps) {
   const [playingId, setPlayingId] = useState<string | null>(null);
 
-  const { data: rawHighlights, isLoading, isError } = useHighlights(competition, undefined, limit);
+  const { data: rawHighlights, isLoading, isError } = useHighlights(competition, undefined, limit, offset);
 
   useEffect(() => {
     if (isError) {
       console.error(`[HighlightsFeed] Query error — competition=${competition ?? "all"} limit=${limit}`);
     }
   }, [isError, competition, limit]);
+
+  useEffect(() => {
+    if (!isLoading && onHasMoreChange) {
+      const raw = Array.isArray(rawHighlights) ? rawHighlights : [];
+      onHasMoreChange(raw.length === limit);
+    }
+  }, [rawHighlights, isLoading, limit, onHasMoreChange]);
 
   const allHighlights: Highlight[] = Array.isArray(rawHighlights) ? rawHighlights : [];
 

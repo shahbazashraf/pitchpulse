@@ -1,4 +1,4 @@
-import { Trophy, Play, Newspaper, Compass, Shield } from "lucide-react";
+import { Trophy, Play, Newspaper, Compass } from "lucide-react";
 import Link from "next/link";
 import ScoresDashboard from "@/components/match/ScoresDashboard";
 import { WorldCupHero } from "@/components/match/WorldCupHero";
@@ -7,7 +7,7 @@ import { NewsSection } from "@/components/news/NewsSection";
 import { CompetitionCards } from "@/components/competitions/CompetitionCards";
 
 export const metadata = {
-  title: "PitchPulse – World Cup 2026 Football Hub",
+  title: "KickStreaming – World Cup 2026 Football Hub",
   description:
     "World Cup 2026 live scores, highlights, breaking football news, and free streams — all in one premium experience.",
 };
@@ -66,24 +66,14 @@ export default function HomePage() {
         <ScoresDashboard />
       </section>
 
-      {/* 4. FIFA/UEFA official highlights */}
-      <section>
-        <SectionHeader
-          icon={<Shield className="w-4 h-4" />}
-          title="FIFA/UEFA"
-          href="/highlights"
-        />
-        <HighlightsFeed limit={4} officialOnly />
-      </section>
-
-      {/* 5. Latest Highlights */}
+      {/* 4. Latest Highlights */}
       <section>
         <SectionHeader
           icon={<Play className="w-4 h-4" />}
           title="Latest Highlights"
           href="/highlights"
         />
-        <HighlightsFeed limit={4} />
+        <HighlightsFeed limit={4} excludeOfficial />
       </section>
 
       {/* 6. Breaking Football News */}

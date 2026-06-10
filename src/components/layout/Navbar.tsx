@@ -22,7 +22,7 @@ export default function Navbar() {
     <header className="bg-pitch-card border-b border-pitch-border shadow-glass">
       <nav className="container mx-auto flex items-center justify-between px-4 py-3">
         <Link href="/" className="text-2xl font-bold text-text-primary">
-          PitchPulse
+          Kick<span className="text-pitch-green">Streaming</span>
         </Link>
         <ul className="flex space-x-4 items-center">
           <li>

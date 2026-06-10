@@ -207,7 +207,7 @@ export default function Footer() {
                   <Zap className="w-4 h-4 text-pitch-green" />
                 </div>
                 <span className="text-xl font-black text-pitch-text-primary">
-                  Pitch<span className="text-pitch-green">Pulse</span>
+                  Kick<span className="text-pitch-green">Streaming</span>
                 </span>
               </div>
               <p className="text-sm text-pitch-text-secondary max-w-xs leading-relaxed">
@@ -301,7 +301,7 @@ export default function Footer() {
           >
             <div className="flex items-center gap-1">
               <Play className="w-3 h-3 text-pitch-green" />
-              <span>© 2026 PitchPulse. All rights reserved.</span>
+              <span>© 2026 KickStreaming. All rights reserved.</span>
               <span className="mx-2 opacity-30">·</span>
               <span>Data: ESPN, FIFA WC2026 API</span>
             </div>

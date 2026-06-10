@@ -1,6 +1,6 @@
 {
-  "name": "PitchPulse",
-  "short_name": "PitchPulse",
+  "name": "KickStreaming",
+  "short_name": "KickStreaming",
   "description": "Live football scores, streams, and stats for the FIFA World Cup 2026",
   "start_url": "/",
   "display": "standalone",

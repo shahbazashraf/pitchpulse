@@ -5,7 +5,7 @@ import { Highlight } from "@/types";
 export const runtime = "nodejs";
 export const maxDuration = 10;
 
-const UA = "PitchPulse/1.0 (+https://pitchpulse.app)";
+const UA = "KickStreaming/1.0 (+https://kickstreaming.app)";
 
 // ─── YouTube RSS channels ─────────────────────────────────────────────────────
 

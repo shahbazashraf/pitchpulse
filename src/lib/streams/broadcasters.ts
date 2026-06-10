@@ -1,5 +1,5 @@
 /**
- * PitchPulse Broadcaster Registry
+ * KickStreaming Broadcaster Registry
  * ==================================
  * Static list of official free-to-air broadcasters for FIFA World Cup 2026.
  * No dynamic discovery needed — these are confirmed rights holders.

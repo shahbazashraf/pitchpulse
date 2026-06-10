@@ -5,7 +5,7 @@ import Footer from '@/components/layout/Footer';
 import Providers from '@/app/providers';
 
 export const metadata = {
-  title: 'PitchPulse',
+  title: 'KickStreaming',
   description: 'Live football scores, World Cup 2026, streams, and AI commentary',
 };
 

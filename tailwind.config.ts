@@ -16,7 +16,7 @@ const config: Config = {
         "text-primary": "#F0F4FF",
         "text-secondary": "#8899BB",
         "text-muted": "#4A5A7A",
-        // PitchPulse Design System
+        // KickStreaming Design System
         pitch: {
           black: "#050810",
           dark: "#0A0F1E",

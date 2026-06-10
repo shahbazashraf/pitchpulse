@@ -17,7 +17,7 @@ const SOURCE_COLORS: Record<string, string> = {
   uefa:        "bg-blue-700",
   goal:        "bg-orange-600",
   as:          "bg-red-500",
-  pitchpulse:  "bg-pitch-muted",
+  kickstreaming: "bg-pitch-muted",
 };
 
 function timeAgo(iso: string): string {
@@ -32,7 +32,7 @@ function timeAgo(iso: string): string {
 function SourceBadge({ source, name, tags }: { source: string; name: string; tags?: string[] }) {
   const key = source.toLowerCase();
   const color = SOURCE_COLORS[key] ?? "bg-pitch-muted";
-  const label = key === "pitchpulse" && tags?.length ? tags[0] : name;
+  const label = key === "kickstreaming" && tags?.length ? tags[0] : name;
   return (
     <span className={`${color} text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide`}>
       {label}
