@@ -183,7 +183,7 @@ function EmptyState({ message }: { message: string }) {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function ScoresDashboard() {
-  const [mode, setMode] = useState<Mode>("dates");
+  const [mode, setMode] = useState<Mode>("worldcup");
   const [selectedOffset, setSelectedOffset] = useState(0);
 
   // WC tab state — default to first WC date tab

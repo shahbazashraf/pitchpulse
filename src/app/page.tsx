@@ -76,14 +76,14 @@ export default function HomePage() {
         <HighlightsFeed limit={4} officialOnly />
       </section>
 
-      {/* 5. Latest Highlights — excludes UEFA/FIFA official videos */}
+      {/* 5. Latest Highlights */}
       <section>
         <SectionHeader
           icon={<Play className="w-4 h-4" />}
           title="Latest Highlights"
           href="/highlights"
         />
-        <HighlightsFeed limit={6} excludeOfficial />
+        <HighlightsFeed limit={4} />
       </section>
 
       {/* 6. Breaking Football News */}

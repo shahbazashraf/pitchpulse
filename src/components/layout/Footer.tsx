@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Trophy, Play, Newspaper, Radio, Globe, ChevronUp,
-  Zap, Users, Star, TrendingUp, Shield, Youtube,
+  Zap, Users, Shield, Youtube,
   MessageSquare, Twitter,
 } from "lucide-react";
 
@@ -51,26 +51,6 @@ const TOP_PLAYERS = [
   { label: "Kevin De Bruyne", href: "/world-cup" },
   { label: "Lionel Messi", href: "/world-cup" },
   { label: "Pedri", href: "/world-cup" },
-];
-
-const WC_LINKS = [
-  { label: "Group Stage", href: "/world-cup" },
-  { label: "Knockout Bracket", href: "/world-cup" },
-  { label: "Schedule", href: "/world-cup" },
-  { label: "Top Scorers", href: "/world-cup" },
-  { label: "Live Scores", href: "/" },
-  { label: "Teams", href: "/world-cup" },
-];
-
-const TRENDING = [
-  "World Cup 2026 scores",
-  "UCL Final 2026",
-  "Mbappé World Cup",
-  "Haaland goals",
-  "Premier League standings",
-  "Champions League highlights",
-  "Real Madrid squad",
-  "Bellingham stats",
 ];
 
 const SOCIAL = [
@@ -308,55 +288,6 @@ export default function Footer() {
                 icon={<Users className="w-3.5 h-3.5" />}
                 links={TOP_PLAYERS}
               />
-            </div>
-          </motion.div>
-
-          {/* WC 2026 quick links */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="pb-8 border-b border-pitch-border/30"
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <Star className="w-3.5 h-3.5 text-pitch-gold" />
-              <span className="text-xs font-bold text-pitch-text-primary uppercase tracking-wider">World Cup 2026</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {WC_LINKS.map(({ label, href }) => (
-                <Link
-                  key={label}
-                  href={href}
-                  className="px-3 py-1.5 rounded-xl bg-pitch-green/10 border border-pitch-green/20 text-xs text-pitch-green font-medium hover:bg-pitch-green/15 transition-colors"
-                >
-                  {label}
-                </Link>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Trending searches */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="pb-8 border-b border-pitch-border/30"
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="w-3.5 h-3.5 text-pitch-text-muted" />
-              <span className="text-xs font-bold text-pitch-text-muted uppercase tracking-wider">Trending Searches</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {TRENDING.map((term) => (
-                <span
-                  key={term}
-                  className="px-3 py-1 rounded-full bg-pitch-muted/30 border border-pitch-border/30 text-xs text-pitch-text-secondary hover:text-pitch-text-primary hover:border-pitch-border/60 transition-colors cursor-default"
-                >
-                  {term}
-                </span>
-              ))}
             </div>
           </motion.div>
 

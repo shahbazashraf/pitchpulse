@@ -17,7 +17,7 @@ const SOURCE_COLORS: Record<string, string> = {
   uefa:        "bg-blue-700",
   goal:        "bg-orange-600",
   as:          "bg-red-500",
-  pitchpulse:  "bg-pitch-green",
+  pitchpulse:  "bg-pitch-muted",
 };
 
 function timeAgo(iso: string): string {
@@ -29,11 +29,13 @@ function timeAgo(iso: string): string {
   return `${Math.floor(hrs / 24)}d ago`;
 }
 
-function SourceBadge({ source, name }: { source: string; name: string }) {
-  const color = SOURCE_COLORS[source.toLowerCase()] ?? "bg-pitch-muted";
+function SourceBadge({ source, name, tags }: { source: string; name: string; tags?: string[] }) {
+  const key = source.toLowerCase();
+  const color = SOURCE_COLORS[key] ?? "bg-pitch-muted";
+  const label = key === "pitchpulse" && tags?.length ? tags[0] : name;
   return (
     <span className={`${color} text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide`}>
-      {name}
+      {label}
     </span>
   );
 }
@@ -61,7 +63,7 @@ function FeaturedNewsCard({ article, index }: { article: NewsArticle; index: num
         </div>
       )}
       <div className="flex items-center gap-2">
-        <SourceBadge source={article.source} name={article.sourceName} />
+        <SourceBadge source={article.source} name={article.sourceName} tags={article.tags} />
         {article.tags.slice(0, 2).map((tag) => (
           <span key={tag} className="text-[10px] text-pitch-text-muted bg-pitch-muted/40 px-2 py-0.5 rounded-full">
             {tag}
@@ -98,7 +100,7 @@ function SmallNewsCard({ article, index }: { article: NewsArticle; index: number
       transition={{ duration: 0.4, delay: index * 0.05, ease: [0.16, 1, 0.3, 1] }}
       className="glass-card group flex flex-col gap-2 hover:border-pitch-green/20 border border-transparent transition-all"
     >
-      <SourceBadge source={article.source} name={article.sourceName} />
+      <SourceBadge source={article.source} name={article.sourceName} tags={article.tags} />
       <p className="text-sm font-semibold text-pitch-text-primary leading-snug line-clamp-2 group-hover:text-pitch-green transition-colors">
         {article.headline}
       </p>
