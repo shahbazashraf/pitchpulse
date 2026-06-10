@@ -1,4 +1,4 @@
-import { Trophy, Play, Newspaper, Compass } from "lucide-react";
+import { Trophy, Play, Newspaper, Compass, Shield } from "lucide-react";
 import Link from "next/link";
 import ScoresDashboard from "@/components/match/ScoresDashboard";
 import { WorldCupHero } from "@/components/match/WorldCupHero";
@@ -66,7 +66,17 @@ export default function HomePage() {
         <ScoresDashboard />
       </section>
 
-      {/* 4. Latest Highlights */}
+      {/* 4. FIFA/UEFA official highlights */}
+      <section>
+        <SectionHeader
+          icon={<Shield className="w-4 h-4" />}
+          title="FIFA/UEFA"
+          href="/highlights"
+        />
+        <HighlightsFeed limit={4} officialOnly />
+      </section>
+
+      {/* 5. Latest Highlights */}
       <section>
         <SectionHeader
           icon={<Play className="w-4 h-4" />}
