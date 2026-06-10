@@ -16,6 +16,9 @@ export interface ScrapedMatch {
   title: string;
   homeTeam: string;
   awayTeam: string;
+  homeLogo: string | null;
+  awayLogo: string | null;
+  leagueLogo: string | null;
   competition: string;
   status: "NS" | "LIVE" | "FT";
   score: { home: number; away: number } | null;
@@ -28,13 +31,16 @@ export interface ScrapedMatch {
 
 interface KoraMatch {
   id: string;
-  status: number; // 0=upcoming, 1=live, 2=finished, 3=live-extra
-  date: string;   // "2026-06-10"
-  time: string;   // "21:00"
-  score: string;  // "3 - 0" or "-" or ""
+  status: number;
+  date: string;
+  time: string;
+  score: string;
   league_en: string;
   home_en: string;
   away_en: string;
+  home_logo: string;
+  away_logo: string;
+  league_logo: string;
 }
 
 function today(): string {
@@ -63,7 +69,7 @@ async function fetchKoraMatches(): Promise<ScrapedMatch[]> {
   const url = `https://ws.kora-api.space/api/matches/${today()}/1?t=${ts()}`;
   const res = await fetch(url, {
     headers: {
-      Referer: "https://hesgoals.eu/",
+      Referer: "https://hesgoal-live.fit/",
       "User-Agent":
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
       Accept: "application/json, text/plain, */*",
@@ -84,7 +90,7 @@ async function fetchKoraMatches(): Promise<ScrapedMatch[]> {
     const streams: ScrapedStream[] = isLive
       ? [
           {
-            url: `https://strm01.app/?m=${m.id}&lang=en`,
+            url: `https://xyzhesgoal-live-fit.panel001.com/?m=${m.id}&lang=en`,
             embed_url: null,
             quality: "HD",
             source: "hesgoals",
@@ -98,6 +104,9 @@ async function fetchKoraMatches(): Promise<ScrapedMatch[]> {
       title: `${m.home_en} vs ${m.away_en}`,
       homeTeam: m.home_en,
       awayTeam: m.away_en,
+      homeLogo: m.home_logo || null,
+      awayLogo: m.away_logo || null,
+      leagueLogo: m.league_logo || null,
       competition: m.league_en || "Football",
       status,
       score,

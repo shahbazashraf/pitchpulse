@@ -1,9 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Radio, Wifi, WifiOff, Clock, CheckCircle2, ExternalLink } from "lucide-react";
+import { Radio, Wifi, WifiOff, Clock, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useScrapedMatches, type ScrapedMatch } from "@/hooks/useScrapedMatches";
+
+const CDN = "https://cdn.kora-api.space/uploads";
+const LOGO_FALLBACK =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'%3E%3Crect fill='%231a2332' width='44' height='44' rx='8'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' dominant-baseline='middle' font-size='22'%3E%E2%9A%BD%3C/text%3E%3C/svg%3E";
 
 export default function StreamsPage() {
   const { data, isLoading } = useScrapedMatches();
@@ -13,7 +17,7 @@ export default function StreamsPage() {
   const finished = data?.grouped.finished ?? [];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 space-y-4">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="w-9 h-9 rounded-xl bg-pitch-red/10 border border-pitch-red/20 flex items-center justify-center">
@@ -34,7 +38,7 @@ export default function StreamsPage() {
       {isLoading ? (
         <StreamsSkeleton />
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-8">
           {live.length > 0 && (
             <MatchSection
               title="Live Now"
@@ -47,7 +51,6 @@ export default function StreamsPage() {
               title="Upcoming Today"
               icon={<Clock className="w-4 h-4 text-pitch-text-muted" />}
               matches={upcoming}
-              dimmed
             />
           )}
           {finished.length > 0 && (
@@ -83,7 +86,7 @@ function MatchSection({
         <span className="text-sm font-bold text-pitch-text-primary">{title}</span>
         <span className="text-xs text-pitch-text-muted">({matches.length})</span>
       </div>
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {matches.map((match, i) => (
           <MatchCard key={match.id} match={match} index={i} />
         ))}
@@ -92,76 +95,149 @@ function MatchSection({
   );
 }
 
-function MatchCard({ match, index }: { match: ScrapedMatch; index: number }) {
-  const scoreStr = match.score
-    ? `${match.score.home} - ${match.score.away}`
-    : match.status === "NS"
-    ? "vs"
-    : "- : -";
+function TeamLogo({ filename, alt }: { filename: string | null; alt: string }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={filename ? `${CDN}/team/${filename}` : LOGO_FALLBACK}
+      alt={alt}
+      width={44}
+      height={44}
+      className="w-11 h-11 object-contain"
+      onError={(e) => {
+        (e.currentTarget as HTMLImageElement).src = LOGO_FALLBACK;
+      }}
+    />
+  );
+}
 
-  const isClickable = match.status === "LIVE" && match.streams.length > 0;
+function LeagueLogo({ filename, alt }: { filename: string | null; alt: string }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={filename ? `${CDN}/league/${filename}` : LOGO_FALLBACK}
+      alt={alt}
+      width={18}
+      height={18}
+      className="w-[18px] h-[18px] object-contain rounded-sm"
+      onError={(e) => {
+        (e.currentTarget as HTMLImageElement).src = LOGO_FALLBACK;
+      }}
+    />
+  );
+}
+
+function MatchCard({ match, index }: { match: ScrapedMatch; index: number }) {
+  const isLive     = match.status === "LIVE";
+  const isUpcoming = match.status === "NS";
+  const isFinished = match.status === "FT";
+  const isClickable = isLive && match.streams.length > 0;
   const streamUrl = isClickable ? match.streams[0].url : undefined;
 
-  const inner = (
-    <div className="px-4 py-3 space-y-2">
-      {/* Competition + status badge */}
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-[10px] text-pitch-text-muted truncate">{match.competition}</span>
-        {match.status === "LIVE" && (
-          <span className="flex items-center gap-1 text-[10px] bg-pitch-red text-white px-1.5 py-0.5 rounded-full font-bold shrink-0">
-            <span className="w-1 h-1 bg-white rounded-full animate-pulse" />
+  const kickoffTime =
+    match.startTime
+      ? new Date(match.startTime).toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+          timeZone: "UTC",
+        })
+      : null;
+
+  const scoreStr = match.score
+    ? `${match.score.home} - ${match.score.away}`
+    : null;
+
+  const cardInner = (
+    <>
+      {/* Card head — league + badge */}
+      <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-pitch-border/40 bg-pitch-surface/50">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <LeagueLogo filename={match.leagueLogo} alt={match.competition} />
+          <span className="text-[11px] font-semibold text-pitch-text-muted truncate">
+            {match.competition}
+          </span>
+        </div>
+        {isLive && (
+          <span className="flex items-center gap-1 text-[10px] bg-pitch-red text-white px-2 py-0.5 rounded-full font-bold shrink-0">
+            <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
             LIVE
           </span>
         )}
-        {match.status === "FT" && (
-          <span className="text-[10px] text-pitch-text-muted bg-pitch-muted/30 border border-pitch-border/40 px-1.5 py-0.5 rounded-full font-semibold shrink-0">
-            FT
+        {isUpcoming && (
+          <span className="text-[10px] text-pitch-blue font-bold bg-pitch-blue/10 border border-pitch-blue/20 px-2 py-0.5 rounded-full shrink-0">
+            UPCOMING
           </span>
         )}
-        {match.status === "NS" && match.startTime && (
-          <span className="text-[10px] text-pitch-blue font-semibold shrink-0">
-            {new Date(match.startTime).toLocaleTimeString("en-US", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </span>
-        )}
-        {match.status === "NS" && !match.startTime && (
-          <span className="text-[10px] text-pitch-blue font-semibold shrink-0 bg-pitch-blue/10 border border-pitch-blue/20 px-1.5 py-0.5 rounded-full">
-            Upcoming
+        {isFinished && (
+          <span className="text-[10px] text-pitch-text-muted font-semibold bg-pitch-muted/20 border border-pitch-border/30 px-2 py-0.5 rounded-full shrink-0">
+            FINISHED
           </span>
         )}
       </div>
 
-      {/* Teams + score */}
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-sm font-semibold text-pitch-text-primary truncate flex-1">
-          {match.homeTeam}
-        </span>
-        <span
-          className={cn(
-            "text-base font-bold shrink-0 tabular-nums",
-            match.status === "LIVE" ? "text-pitch-green" : "text-pitch-text-primary",
-          )}
-        >
-          {scoreStr}
-        </span>
-        <span className="text-sm font-semibold text-pitch-text-primary truncate flex-1 text-right">
-          {match.awayTeam}
-        </span>
+      {/* Card body — teams + score/time */}
+      <div className="px-3 py-4">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+          {/* Home team */}
+          <div className="flex flex-col items-center gap-1.5">
+            <TeamLogo filename={match.homeLogo} alt={match.homeTeam} />
+            <span className="text-[11px] font-bold text-pitch-text-primary text-center leading-tight line-clamp-2">
+              {match.homeTeam}
+            </span>
+          </div>
+
+          {/* Center — score or time */}
+          <div className="flex flex-col items-center gap-0.5 min-w-[64px]">
+            {isLive && scoreStr ? (
+              <span className="text-xl font-black text-pitch-green tabular-nums">
+                {scoreStr}
+              </span>
+            ) : isFinished && scoreStr ? (
+              <span className="text-xl font-black text-pitch-text-primary tabular-nums">
+                {scoreStr}
+              </span>
+            ) : isUpcoming && kickoffTime ? (
+              <>
+                <span className="text-lg font-black text-pitch-blue tabular-nums">
+                  {kickoffTime}
+                </span>
+                <span className="text-[9px] font-semibold text-pitch-text-muted uppercase tracking-wider">
+                  Kick-off
+                </span>
+              </>
+            ) : (
+              <span className="text-sm font-bold text-pitch-text-muted">vs</span>
+            )}
+          </div>
+
+          {/* Away team */}
+          <div className="flex flex-col items-center gap-1.5">
+            <TeamLogo filename={match.awayLogo} alt={match.awayTeam} />
+            <span className="text-[11px] font-bold text-pitch-text-primary text-center leading-tight line-clamp-2">
+              {match.awayTeam}
+            </span>
+          </div>
+        </div>
       </div>
 
-      {/* Watch CTA — only on live */}
-      {isClickable && (
-        <div className="flex items-center gap-1.5 pt-0.5">
-          <span className="flex items-center gap-1 text-[10px] bg-pitch-green/10 text-pitch-green border border-pitch-green/20 px-1.5 py-0.5 rounded-full font-semibold">
-            <ExternalLink className="w-2.5 h-2.5" />
-            Watch stream
-          </span>
+      {/* Watch footer — live only */}
+      {isLive && (
+        <div className="border-t border-pitch-green/20 bg-gradient-to-r from-pitch-green/10 to-pitch-blue/10 px-3 py-2 flex items-center justify-center gap-1.5">
+          <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+            <polygon points="1,0 10,5 1,10" fill="#00E676" />
+          </svg>
+          <span className="text-[11px] font-bold text-pitch-green">Watch Live</span>
         </div>
       )}
-    </div>
+    </>
   );
+
+  const motionProps = {
+    initial: { opacity: 0, y: 8 },
+    animate: { opacity: 1, y: 0 },
+    transition: { delay: index * 0.04, duration: 0.3, ease: [0.16, 1, 0.3, 1] as const },
+  };
 
   if (isClickable && streamUrl) {
     return (
@@ -169,24 +245,23 @@ function MatchCard({ match, index }: { match: ScrapedMatch; index: number }) {
         href={streamUrl}
         target="_blank"
         rel="noopener noreferrer"
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: index * 0.04, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-        className="glass rounded-2xl border border-pitch-border/60 glass-hover overflow-hidden block"
+        {...motionProps}
+        className="glass rounded-2xl border border-pitch-green/30 overflow-hidden block hover:-translate-y-0.5 transition-transform"
       >
-        {inner}
+        {cardInner}
       </motion.a>
     );
   }
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.04, duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      className="glass rounded-2xl border border-pitch-border/60 overflow-hidden cursor-default"
+      {...motionProps}
+      className={cn(
+        "glass rounded-2xl border border-pitch-border/50 overflow-hidden cursor-default",
+        isFinished && "opacity-60",
+      )}
     >
-      {inner}
+      {cardInner}
     </motion.div>
   );
 }
@@ -194,9 +269,9 @@ function MatchCard({ match, index }: { match: ScrapedMatch; index: number }) {
 function StreamsSkeleton() {
   return (
     <div className="space-y-6">
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="h-28 rounded-2xl skeleton" />
+          <div key={i} className="h-36 rounded-2xl skeleton" />
         ))}
       </div>
     </div>
