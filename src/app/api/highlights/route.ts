@@ -196,7 +196,7 @@ export async function GET(req: NextRequest) {
   let highlights: Highlight[] = [];
   let source: "firestore" | "static" = "static";
 
-  // Read from Firestore
+  // Read from Firestore (highlights collection only)
   const db = getFirebaseAdmin();
   if (db) {
     try {

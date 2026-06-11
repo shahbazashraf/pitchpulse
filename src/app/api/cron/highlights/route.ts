@@ -10,11 +10,11 @@ const UA = "KickStreaming/1.0 (+https://kickstreaming.app)";
 // ─── YouTube RSS channels ─────────────────────────────────────────────────────
 
 const YT_CHANNELS = [
-  { id: "UCpc3RNxuN1vFMJxNwBlv8QA", provider: "FIFA",       competition: "FIFA World Cup" },
-  { id: "UCj5RwDivLksanrNvkG2XLFA", provider: "Fox Soccer",  competition: "FIFA World Cup" },
-  { id: "UCNAf1k0yIjyGu3k9BwAg3lg", provider: "ESPN FC",     competition: "Football" },
-  { id: "UCi-hE8Exdg4PbrHJx4jnHcQ", provider: "BBC Sport",   competition: "Football" },
-  { id: "UCBi2mrWuNuyYy4gbM6fU18Q", provider: "UEFA",        competition: "UEFA Champions League" },
+  { id: "UCpc3RNxuN1vFMJxNwBlv8QA", provider: "FIFA", competition: "FIFA World Cup" },
+  { id: "UCj5RwDivLksanrNvkG2XLFA", provider: "Fox Soccer", competition: "FIFA World Cup" },
+  { id: "UCNAf1k0yIjyGu3k9BwAg3lg", provider: "ESPN FC", competition: "Football" },
+  { id: "UCi-hE8Exdg4PbrHJx4jnHcQ", provider: "BBC Sport", competition: "Football" },
+  { id: "UCBi2mrWuNuyYy4gbM6fU18Q", provider: "UEFA", competition: "UEFA Champions League" },
 ];
 
 const HIGHLIGHT_KEYWORDS = /highlight|goal|match|final|semi|quarter|vs\b|v\./i;
@@ -208,7 +208,7 @@ async function writeToFirestore(db: any, highlights: Highlight[]): Promise<numbe
   let count = 0;
   let batchCount = 0;
   for (const h of highlights) {
-    batch.set(db.collection("highlights").doc(h.id), h, { merge: true });
+    batch.set(db.collection("football_videos").doc(h.id), h, { merge: true });
     count++;
     batchCount++;
     if (batchCount === 400) {

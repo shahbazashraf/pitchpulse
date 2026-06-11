@@ -125,6 +125,13 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // ─── Football Videos — public read, admin write ─────────────────────────
+
+    match /football_videos/{doc} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // ─── Admin only ─────────────────────────────────────────────────────────
 
     match /admins/{userId} {
