@@ -4,7 +4,6 @@ import { Highlight } from "@/types";
 export const runtime = "nodejs";
 
 const LOG = "[football-videos/api]";
-const OFFICIAL_PROVIDERS = ["FIFA", "UEFA", "ESPN"];
 
 // ─── Firebase Admin ───────────────────────────────────────────────────────────
 
@@ -41,10 +40,6 @@ export async function GET(req: NextRequest) {
             let query = db
                 .collection("football_videos")
                 .orderBy("publishedAt", "desc");
-
-            // Filter by official providers only
-            query = query.where("provider", "in", OFFICIAL_PROVIDERS);
-            console.log(`${LOG} Filtering provider IN [FIFA, UEFA, ESPN]`);
 
             if (competition !== "all") {
                 query = query.where("competition", "==", competition);

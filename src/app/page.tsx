@@ -1,8 +1,9 @@
-import { Trophy, Play, Newspaper, Compass, Shield } from "lucide-react";
+import { Trophy, Play, Newspaper, Compass } from "lucide-react";
 import Link from "next/link";
 import ScoresDashboard from "@/components/match/ScoresDashboard";
 import { WorldCupHero } from "@/components/match/WorldCupHero";
 import { HighlightsFeed } from "@/components/highlights/HighlightsFeed";
+import { OfficialHighlightsSection } from "@/components/highlights/OfficialHighlightsSection";
 import { NewsSection } from "@/components/news/NewsSection";
 import { CompetitionCards } from "@/components/competitions/CompetitionCards";
 
@@ -67,14 +68,7 @@ export default function HomePage() {
       </section>
 
       {/* 4. FIFA/UEFA official highlights */}
-      <section>
-        <SectionHeader
-          icon={<Shield className="w-4 h-4" />}
-          title="FIFA/UEFA"
-          href="/highlights"
-        />
-        <HighlightsFeed limit={4} officialOnly />
-      </section>
+      <OfficialHighlightsSection limit={4} />
 
       {/* 5. Latest Highlights */}
       <section>
@@ -83,7 +77,7 @@ export default function HomePage() {
           title="Latest Highlights"
           href="/highlights"
         />
-        <HighlightsFeed limit={4} excludeOfficial />
+        <HighlightsFeed limit={4} />
       </section>
 
       {/* 6. Breaking Football News */}

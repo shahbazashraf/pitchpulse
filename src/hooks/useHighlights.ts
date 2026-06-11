@@ -20,10 +20,10 @@ export function useHighlights(
       if (year) params.set("year", String(year));
       params.set("limit", String(limit));
       if (offset > 0) params.set("offset", String(offset));
-      if (provider) params.set("provider", provider);
 
-      const url = `/api/highlights?${params}`;
-      console.log(`${LOG} Fetching competition=${competition ?? "all"} provider=${provider ?? "all"} limit=${limit}`, url);
+      const isOfficial = provider === "official";
+      const url = isOfficial ? `/api/football-videos?${params}` : `/api/highlights?${params}`;
+      console.log(`${LOG} Fetching competition=${competition ?? "all"} type=${isOfficial ? "football-videos" : "highlights"} limit=${limit}`, url);
 
       const res = await fetch(url);
 

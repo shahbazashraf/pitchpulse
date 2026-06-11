@@ -147,7 +147,6 @@ const STATIC_FALLBACK: Highlight[] = [
 ];
 
 const LOG = "[highlights/api]";
-const OFFICIAL_PROVIDERS = ["FIFA", "UEFA", "ESPN"];
 
 // ─── Firebase Admin ───────────────────────────────────────────────────────────
 
@@ -179,13 +178,12 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const competition = searchParams.get("competition") ?? "all";
   const year = searchParams.get("year") ?? "all";
-  const provider = searchParams.get("provider") ?? "all"; // "official" | "others" | "all"
   const limit = Math.min(parseInt(searchParams.get("limit") ?? "12"), 50);
   const offset = Math.max(parseInt(searchParams.get("offset") ?? "0"), 0);
 
-  console.log(`${LOG} GET competition=${competition} year=${year} provider=${provider} limit=${limit} offset=${offset}`);
+  console.log(`${LOG} GET competition=${competition} year=${year} limit=${limit} offset=${offset}`);
 
-  const cacheKey = CacheKey.highlights(competition, year, limit) + `:${offset}:${provider}`;
+  const cacheKey = CacheKey.highlights(competition, year, limit) + `:${offset}`;
   const cached = await cache.get<Highlight[]>(cacheKey);
   if (cached && Array.isArray(cached)) {
     console.log(`${LOG} Cache HIT — returning ${cached.length} highlights`);
@@ -200,17 +198,9 @@ export async function GET(req: NextRequest) {
   const db = getFirebaseAdmin();
   if (db) {
     try {
-      // For "others" we fetch a larger batch then post-filter, since not-in + offset is unreliable
-      const fetchLimit = provider === "others" ? Math.min(limit * 5, 200) : limit;
-
       let query = db
         .collection("highlights")
         .orderBy("publishedAt", "desc");
-
-      if (provider === "official") {
-        query = query.where("provider", "in", OFFICIAL_PROVIDERS);
-        console.log(`${LOG} Filtering provider IN [FIFA, UEFA, ESPN]`);
-      }
 
       if (competition !== "all") {
         query = query.where("competition", "==", competition);
@@ -221,22 +211,13 @@ export async function GET(req: NextRequest) {
         console.log(`${LOG} Filtering by year=${year}`);
       }
 
-      if (provider === "others") {
-        query = query.limit(fetchLimit);
-      } else {
-        query = query.offset(offset).limit(limit);
-      }
+      query = query.offset(offset).limit(limit);
 
       const snap = await query.get();
-      let docs: Highlight[] = snap.docs.map((d: { id: string; data: () => Omit<Highlight, "id"> }) => ({
+      const docs: Highlight[] = snap.docs.map((d: { id: string; data: () => Omit<Highlight, "id"> }) => ({
         id: d.id,
         ...d.data(),
       }));
-
-      if (provider === "others") {
-        docs = docs.filter((h) => !OFFICIAL_PROVIDERS.includes(h.provider ?? ""));
-        docs = docs.slice(offset, offset + limit);
-      }
 
       highlights = docs;
       source = "firestore";
@@ -254,8 +235,6 @@ export async function GET(req: NextRequest) {
     highlights = STATIC_FALLBACK.filter((h) => {
       if (competition !== "all" && !h.competition.toLowerCase().includes(competition.toLowerCase())) return false;
       if (year !== "all" && h.year !== parseInt(year)) return false;
-      if (provider === "official" && !OFFICIAL_PROVIDERS.includes(h.provider ?? "")) return false;
-      if (provider === "others" && OFFICIAL_PROVIDERS.includes(h.provider ?? "")) return false;
       return true;
     }).slice(0, limit);
     source = "static";
