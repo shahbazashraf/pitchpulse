@@ -6,46 +6,128 @@ import { getFixturesByDate, WC_TEAMS } from "@/lib/worldcup2026/data";
 
 export const runtime = "edge";
 
+function getTzOffsetMs(date: Date, timeZone: string): number {
+  const dateWithZeroMs = new Date(date);
+  dateWithZeroMs.setUTCMilliseconds(0);
+
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(dateWithZeroMs);
+  const getPart = (type: string) => parseInt(parts.find((p) => p.type === type)!.value, 10);
+
+  const year = getPart("year");
+  const month = getPart("month");
+  const day = getPart("day");
+  let hour = getPart("hour");
+  if (hour === 24) hour = 0;
+  const minute = getPart("minute");
+  const second = getPart("second");
+
+  const utcDateInTz = Date.UTC(year, month - 1, day, hour, minute, second);
+  return utcDateInTz - dateWithZeroMs.getTime();
+}
+
+function getUtcRangeForLocalDate(dateStr: string, timeZone: string) {
+  const utcMidnight = new Date(`${dateStr}T00:00:00Z`);
+  const offsetStart = getTzOffsetMs(utcMidnight, timeZone);
+  const start = new Date(utcMidnight.getTime() - offsetStart);
+
+  const utcEndOfDay = new Date(`${dateStr}T23:59:59.999Z`);
+  const offsetEnd = getTzOffsetMs(utcEndOfDay, timeZone);
+  const end = new Date(utcEndOfDay.getTime() - offsetEnd);
+
+  const startUtcStr = start.toISOString().slice(0, 10);
+  const endUtcStr = end.toISOString().slice(0, 10);
+
+  const utcDates = [startUtcStr];
+  if (endUtcStr !== startUtcStr) {
+    utcDates.push(endUtcStr);
+  }
+
+  return { start, end, utcDates };
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
   const date = searchParams.get("date") ?? new Date().toISOString().split("T")[0];
   const competitions = searchParams.get("competitions")?.split(",").filter(Boolean);
+  const timezone = searchParams.get("timezone") ?? "UTC";
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     return NextResponse.json({ error: "Invalid date format. Use YYYY-MM-DD" }, { status: 400 });
   }
 
-  const cacheKey = CacheKey.matchesByDate(date, competitions);
-  const isToday = date === new Date().toISOString().split("T")[0];
-
   try {
-    const data = await cache.getOrFetch(
-      cacheKey,
-      async () => {
-        const [wcMatches, registryResult] = await Promise.allSettled([
-          fetchWCMatchesByDate(date),
-          getRegistry().getMatchesByDate(date, competitions),
-        ]);
+    const { start, end, utcDates } = getUtcRangeForLocalDate(date, timezone);
+    const todayUtc = new Date().toISOString().slice(0, 10);
 
-        const wc = wcMatches.status === "fulfilled" ? wcMatches.value : [];
-        const others = registryResult.status === "fulfilled" ? (registryResult.value.data ?? []) : [];
+    // Fetch matches for all overlapping UTC dates in parallel
+    const results = await Promise.all(
+      utcDates.map((utcDate) => {
+        const cacheKey = CacheKey.matchesByDate(utcDate, competitions);
+        const isTodayOrNear = utcDate === todayUtc;
 
-        // De-duplicate: WC matches take priority
-        const wcIds = new Set(wc.map((m: any) => `${m.homeTeam?.name}|${m.awayTeam?.name}`));
-        const filteredOthers = others.filter(
-          (m) => !wcIds.has(`${m.homeTeam.name}|${m.awayTeam.name}`),
+        return cache.getOrFetch(
+          cacheKey,
+          async () => {
+            const [wcMatches, registryResult] = await Promise.allSettled([
+              fetchWCMatchesByDate(utcDate),
+              getRegistry().getMatchesByDate(utcDate, competitions),
+            ]);
+
+            const wc = wcMatches.status === "fulfilled" ? wcMatches.value : [];
+            const others = registryResult.status === "fulfilled" ? (registryResult.value.data ?? []) : [];
+
+            // De-duplicate: WC matches take priority
+            const wcIds = new Set(wc.map((m: any) => `${m.homeTeam?.name}|${m.awayTeam?.name}`));
+            const filteredOthers = others.filter(
+              (m) => !wcIds.has(`${m.homeTeam.name}|${m.awayTeam.name}`),
+            );
+
+            return [...wc, ...filteredOthers];
+          },
+          isTodayOrNear ? TTL.UPCOMING_MATCHES : TTL.COMPETITION,
         );
-
-        return [...wc, ...filteredOthers];
-      },
-      isToday ? TTL.UPCOMING_MATCHES : TTL.COMPETITION,
+      })
     );
 
+    // Merge all fetched matches and filter by the local day's range
+    const allMatches = results.flat();
+    const filteredMatches = allMatches.filter((m) => {
+      const matchTime = new Date(m.startTime).getTime();
+      return matchTime >= start.getTime() && matchTime <= end.getTime();
+    });
+
+    let isLocalToday = false;
+    try {
+      const formatter = new Intl.DateTimeFormat("en-US", {
+        timeZone: timezone,
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+      });
+      const parts = formatter.formatToParts(new Date());
+      const getPart = (type: string) => parts.find((p) => p.type === type)!.value;
+      const localTodayStr = `${getPart("year")}-${getPart("month").padStart(2, "0")}-${getPart("day").padStart(2, "0")}`;
+      isLocalToday = date === localTodayStr;
+    } catch {
+      isLocalToday = date === new Date().toISOString().split("T")[0];
+    }
+
     return NextResponse.json(
-      { matches: data, date, fetchedAt: new Date().toISOString() },
+      { matches: filteredMatches, date, fetchedAt: new Date().toISOString() },
       {
         headers: {
-          "Cache-Control": `public, s-maxage=${isToday ? TTL.UPCOMING_MATCHES : 3600}, stale-while-revalidate=60`,
+          "Cache-Control": `public, s-maxage=${isLocalToday ? TTL.UPCOMING_MATCHES : 3600}, stale-while-revalidate=60`,
         },
       },
     );
@@ -56,6 +138,7 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
 
 async function fetchWCMatchesByDate(date: string) {
   // Try live API first

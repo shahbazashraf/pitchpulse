@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Calendar, MapPin, Trophy, ChevronRight, Zap } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { WC_FIXTURES, WC_TEAMS } from "@/lib/worldcup2026/data";
+import { WC_FIXTURES, WC_TEAMS, type WCFixture } from "@/lib/worldcup2026/data";
 import { ClientKickoffTime } from "@/components/match/ClientKickoffTime";
 
 const WORLD_CUP_START = new Date("2026-06-11T00:00:00-05:00");
@@ -24,27 +24,33 @@ function getCountdown() {
   return { live: false, days, hours, minutes, seconds };
 }
 
-function getNextFixture() {
-  const now = new Date();
-  return WC_FIXTURES.find((f) => new Date(f.kickoffUtc) > now) ?? WC_FIXTURES[0];
-}
-
-function getTodayFixtureCount() {
-  const today = new Date().toISOString().slice(0, 10);
-  return WC_FIXTURES.filter((f) => f.kickoffUtc.startsWith(today)).length;
-}
+type NextFixture = WCFixture & { homeTeam: typeof WC_TEAMS[string]; awayTeam: typeof WC_TEAMS[string] };
 
 export function WorldCupHero() {
-  // null on SSR — set only after mount to avoid hydration mismatch
   const [countdown, setCountdown] = useState<ReturnType<typeof getCountdown>>(null);
-  const [nextFixture, setNextFixture] = useState<ReturnType<typeof getNextFixture> | null>(null);
+  const [nextFixture, setNextFixture] = useState<NextFixture | null>(null);
   const [todayCount, setTodayCount] = useState(0);
 
   useEffect(() => {
-    setNextFixture(getNextFixture());
-    setTodayCount(getTodayFixtureCount());
     setCountdown(getCountdown());
     const id = setInterval(() => setCountdown(getCountdown()), 1000);
+
+    // Fetch live data from /api/world-cup (ESPN-backed with static fallback)
+    fetch("/api/world-cup")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.nextMatches?.[0]) setNextFixture(data.nextMatches[0]);
+        if (typeof data.todayFixtureCount === "number") setTodayCount(data.todayFixtureCount);
+      })
+      .catch(() => {
+        // Fallback: scan static fixtures
+        const now = new Date();
+        const f = WC_FIXTURES.find((x) => new Date(x.kickoffUtc) > now) ?? WC_FIXTURES[0];
+        setNextFixture({ ...f, homeTeam: WC_TEAMS[f.homeTeamCode], awayTeam: WC_TEAMS[f.awayTeamCode] });
+        const today = now.toISOString().slice(0, 10);
+        setTodayCount(WC_FIXTURES.filter((x) => x.kickoffUtc.startsWith(today)).length);
+      });
+
     return () => clearInterval(id);
   }, []);
 
@@ -55,8 +61,8 @@ export function WorldCupHero() {
     );
   }
 
-  const homeTeam = nextFixture ? WC_TEAMS[nextFixture.homeTeamCode] : null;
-  const awayTeam = nextFixture ? WC_TEAMS[nextFixture.awayTeamCode] : null;
+  const homeTeam = nextFixture?.homeTeam ?? null;
+  const awayTeam = nextFixture?.awayTeam ?? null;
 
   return (
     <motion.div

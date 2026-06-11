@@ -21,10 +21,11 @@ export function useMatches() {
 export const useLiveMatches = useMatches;
 
 export function useMatchesByDate(date: string) {
+  const timezone = typeof window !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC";
   return useQuery<NormalizedMatch[]>({
-    queryKey: ['matchesByDate', date],
+    queryKey: ['matchesByDate', date, timezone],
     queryFn: async () => {
-      const res = await fetch(`/api/matches/date?date=${date}`);
+      const res = await fetch(`/api/matches/date?date=${date}&timezone=${encodeURIComponent(timezone)}`);
       if (!res.ok) return [];
       const data = await res.json();
       return (data.matches ?? []) as NormalizedMatch[];
@@ -34,6 +35,7 @@ export function useMatchesByDate(date: string) {
     refetchInterval: 2 * 60_000,
   });
 }
+
 
 interface UseMatchOptions {
   include?: Array<'events' | 'stats' | 'lineups'>;

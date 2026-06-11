@@ -1,26 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLiveMatches, useMatchesByDate } from "@/hooks/useMatches";
 import { useScrapedMatches, type ScrapedMatch } from "@/hooks/useScrapedMatches";
 import MatchCard from "@/components/match/MatchCard";
-import { cn, getDateString } from "@/lib/utils";
+import { cn, getDateString, getLocalDateString } from "@/lib/utils";
 import { RefreshCw, Radio, Trophy } from "lucide-react";
 import type { NormalizedMatch } from "@/types";
 import { WC_FIXTURES, WC_TEAMS } from "@/lib/worldcup2026/data";
 import Link from "next/link";
 
-// ─── Date tabs (original behaviour, all leagues) ──────────────────────────────
-const DATE_TABS = [
-  { offset: -1, label: "Yesterday" },
-  { offset: 0,  label: "Today"     },
-  { offset: 1,  label: "Tomorrow"  },
-  { offset: 2,  label: "+2"        },
-  { offset: 3,  label: "+3"        },
-];
+// ─── Date tabs (dynamic local calendar, all leagues) ──────────────────────────
+function getLocalDateTabs(): { offset: number; label: string }[] {
+  const labels = ["Yesterday", "Today", "Tomorrow"];
+  return [-1, 0, 1, 2, 3].map((offset) => {
+    const d = new Date();
+    d.setDate(d.getDate() + offset);
+    let label = "";
+    if (offset >= -1 && offset <= 1) {
+      label = labels[offset + 1];
+    } else {
+      label = d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }).replace(",", "");
+    }
+    return { offset, label };
+  });
+}
 
 type Mode = "dates" | "worldcup";
+
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -42,7 +50,7 @@ function mergeMatches(live: NormalizedMatch[], day: NormalizedMatch[]): Normaliz
 }
 
 function wcFixturesToMatches(date: string): NormalizedMatch[] {
-  return WC_FIXTURES.filter((f) => f.kickoffUtc.startsWith(date)).map((f) => {
+  return WC_FIXTURES.filter((f) => getLocalDateString(new Date(f.kickoffUtc)) === date).map((f) => {
     const home = WC_TEAMS[f.homeTeamCode];
     const away = WC_TEAMS[f.awayTeamCode];
     return {
@@ -67,40 +75,42 @@ function wcFixturesToMatches(date: string): NormalizedMatch[] {
   });
 }
 
-// Find the next date (from today) that has WC fixtures, up to 30 days ahead
-function findNextWCDate(): string {
-  const today = getDateString(0);
-  const from = new Date(today + "T00:00:00Z");
-  for (let i = 0; i <= 30; i++) {
-    const d = new Date(from);
-    d.setUTCDate(d.getUTCDate() + i);
-    const dateStr = d.toISOString().slice(0, 10);
-    if (WC_FIXTURES.some((f) => f.kickoffUtc.startsWith(dateStr))) return dateStr;
+function getWCLocalTabs(): { date: string; label: string }[] {
+  const todayStr = getLocalDateString(0);
+  
+  // Get all unique local dates for all WC fixtures
+  const allLocalDatesSet = new Set<string>();
+  for (const f of WC_FIXTURES) {
+    const dateStr = getLocalDateString(new Date(f.kickoffUtc));
+    allLocalDatesSet.add(dateStr);
   }
-  return today;
+  
+  const allLocalDates = Array.from(allLocalDatesSet).sort();
+  
+  // Find the first date in the sorted list that is >= todayStr
+  let startIndex = allLocalDates.findIndex((d) => d >= todayStr);
+  if (startIndex === -1) {
+    startIndex = Math.max(0, allLocalDates.length - 8);
+  }
+  
+  // Get 8 dates starting from startIndex
+  const selectedDates = allLocalDates.slice(startIndex, startIndex + 8);
+  
+  return selectedDates.map((dateStr) => {
+    const isToday = dateStr === todayStr;
+    const isTomorrow = dateStr === getLocalDateString(1);
+    
+    // Parse dateStr (YYYY-MM-DD) to a local Date object for formatting
+    const parts = dateStr.split("-").map(Number);
+    const d = new Date(parts[0], parts[1] - 1, parts[2]);
+    
+    const label = isToday ? "Today" : isTomorrow ? "Tomorrow"
+      : d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      
+    return { date: dateStr, label };
+  });
 }
 
-// Build WC date tab list: show dates around today that have WC fixtures
-function getWCDateTabs(): { date: string; label: string }[] {
-  const today = getDateString(0);
-  const tabs: { date: string; label: string }[] = [];
-  // Find the first WC date from today
-  const from = new Date(findNextWCDate() + "T00:00:00Z");
-  // Show 5 days starting from the first WC date
-  for (let i = 0; i < 40 && tabs.length < 8; i++) {
-    const d = new Date(from);
-    d.setUTCDate(d.getUTCDate() + i);
-    const dateStr = d.toISOString().slice(0, 10);
-    if (WC_FIXTURES.some((f) => f.kickoffUtc.startsWith(dateStr))) {
-      const isToday = dateStr === today;
-      const isTomorrow = dateStr === getDateString(1);
-      const label = isToday ? "Today" : isTomorrow ? "Tomorrow"
-        : d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
-      tabs.push({ date: dateStr, label });
-    }
-  }
-  return tabs;
-}
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -186,11 +196,19 @@ export default function ScoresDashboard() {
   const [mode, setMode] = useState<Mode>("worldcup");
   const [selectedOffset, setSelectedOffset] = useState(0);
 
-  // WC tab state — default to first WC date tab
-  const wcTabs = getWCDateTabs();
-  const [wcDate, setWcDate] = useState<string>(wcTabs[0]?.date ?? getDateString(0));
+  const [isMounted, setIsMounted] = useState(false);
+  const [wcDate, setWcDate] = useState<string>("");
 
-  const selectedDate = getDateString(selectedOffset);
+  useEffect(() => {
+    setIsMounted(true);
+    const tabs = getWCLocalTabs();
+    if (tabs.length > 0) {
+      setWcDate(tabs[0].date);
+    }
+  }, []);
+
+  const wcTabs = isMounted ? getWCLocalTabs() : [];
+  const selectedDate = isMounted ? getLocalDateString(selectedOffset) : "";
   const isToday = selectedOffset === 0;
 
   // Always fetch live matches (used in both modes)
@@ -227,6 +245,19 @@ export default function ScoresDashboard() {
     : wcFixturesToMatches(wcDate);
 
   const wcGrouped = groupByCompetition(wcMatches);
+
+  if (!isMounted) {
+    return (
+      <div className="space-y-4">
+        {/* Skeleton for mode selector */}
+        <div className="h-10 w-64 bg-pitch-muted/20 border border-pitch-border/30 rounded-xl animate-pulse" />
+        {/* Skeleton for tabs */}
+        <div className="h-8 w-full bg-pitch-muted/20 border border-pitch-border/30 rounded-xl animate-pulse" />
+        {/* Skeleton for match list */}
+        <MatchListSkeleton />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -276,7 +307,7 @@ export default function ScoresDashboard() {
       {/* Sub-tabs row */}
       {mode === "dates" ? (
         <div className="flex items-center gap-1 overflow-x-auto no-scrollbar -mt-2">
-          {DATE_TABS.map(({ offset, label }) => {
+          {getLocalDateTabs().map(({ offset, label }) => {
             const isActive = offset === selectedOffset;
             return (
               <button

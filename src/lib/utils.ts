@@ -45,6 +45,17 @@ export function getDateString(offsetDays = 0): string {
   return d.toISOString().split("T")[0];
 }
 
+export function getLocalDateString(dateInput: Date | number = 0): string {
+  const d = dateInput instanceof Date ? dateInput : new Date();
+  if (typeof dateInput === "number" && dateInput !== 0) {
+    d.setDate(d.getDate() + dateInput);
+  }
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export function isOfficialHighlight(h: Highlight): boolean {
   const p = (h.provider ?? "").toLowerCase();
   const c = (h.competition ?? "").toLowerCase();
