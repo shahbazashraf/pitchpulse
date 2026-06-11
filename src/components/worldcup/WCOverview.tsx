@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { WC_FIXTURES, WC_TEAMS } from "@/lib/worldcup2026/data";
-import { formatKickoff } from "@/lib/utils";
+import { ClientKickoffTime } from "@/components/match/ClientKickoffTime";
 
 interface WCMeta {
   nextMatches: Array<{
@@ -98,10 +98,8 @@ export function WCOverview() {
                 </span>
                 <span className="text-xl">{f.awayTeam?.flag ?? "🏳️"}</span>
               </div>
-              <div suppressHydrationWarning className="text-right">
-                <div suppressHydrationWarning className="text-sm font-mono font-bold text-pitch-green">
-                  {formatKickoff(f.kickoffUtc)}
-                </div>
+              <div className="text-right">
+                <ClientKickoffTime isoDate={f.kickoffUtc} className="text-sm font-mono font-bold text-pitch-green" />
                 <div className="text-xs text-pitch-text-muted">{f.city}</div>
               </div>
             </div>

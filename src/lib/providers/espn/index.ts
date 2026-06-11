@@ -18,14 +18,15 @@ export class EspnProvider implements FootballProvider {
   private readonly http: ProviderHttpClient;
 
   static readonly LEAGUE_SLUGS: Record<string, string> = {
-    "premier-league":   "eng.1",
-    "la-liga":          "esp.1",
-    "bundesliga":       "ger.1",
-    "serie-a":          "ita.1",
-    "ligue-1":          "fra.1",
-    "champions-league": "uefa.champions",
-    "europa-league":    "uefa.europa",
-    "mls":              "usa.1",
+    "premier-league":       "eng.1",
+    "la-liga":              "esp.1",
+    "bundesliga":           "ger.1",
+    "serie-a":              "ita.1",
+    "ligue-1":              "fra.1",
+    "champions-league":     "uefa.champions",
+    "europa-league":        "uefa.europa",
+    "mls":                  "usa.1",
+    "fifa-world-cup-2026":  "fifa.world",
   };
 
   // Reverse: espn slug → internal competition ID
@@ -218,8 +219,8 @@ function normalizeMatch(event: any, leagueSlug: string, internalCompId: string):
     competitionId: internalCompId,
     season: String(new Date(event.date ?? "").getFullYear() || new Date().getFullYear()),
     round: comp?.notes?.[0]?.headline ?? event.week?.text ?? null,
-    roundType: "other",
-    group: null,
+    roundType: leagueSlug === "fifa.world" ? "group" : "other",
+    group: extractGroup(comp?.notes?.[0]?.headline ?? null),
     homeTeam: normalizeTeam(home),
     awayTeam: normalizeTeam(away),
     homeScore: parseScore(home?.score, status),
@@ -506,6 +507,12 @@ function normalizeStandings(data: any, competitionId: string): NormalizedStandin
 }
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
+
+function extractGroup(headline: string | null): string | null {
+  if (!headline) return null;
+  const m = headline.match(/\bGroup\s+([A-L])\b/i);
+  return m ? `Group ${m[1].toUpperCase()}` : null;
+}
 
 function isLiveStatus(status: MatchStatus): boolean {
   return ["1H", "2H", "HT", "ET", "P", "BT"].includes(status);

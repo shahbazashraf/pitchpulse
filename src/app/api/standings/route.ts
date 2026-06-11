@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getRegistry } from "@/lib/providers/registry";
 import { cache, CacheKey, TTL } from "@/lib/cache";
 import { wc2026Provider } from "@/lib/providers/wc2026";
+import { EspnProvider } from "@/lib/providers/espn";
 import { WC_GROUPS, WC_TEAMS } from "@/lib/worldcup2026/data";
 
 export const runtime = "edge";
@@ -87,8 +88,44 @@ async function fetchWCStandings() {
         }));
       }
     } catch {
-      // fall through to static data
+      // fall through to ESPN
     }
+  }
+
+  // ESPN fallback — no API key, no quota, live group standings when tournament is active
+  try {
+    const espn = new EspnProvider();
+    const result = await espn.getStandings("fifa-world-cup-2026");
+    if (result.data && result.data.length > 0 && result.data[0].entries.length > 0) {
+      return result.data.map((s) => ({
+        competitionId: "fifa-world-cup-2026",
+        season: "2026",
+        group: s.group,
+        entries: s.entries.map((e) => ({
+          rank:           e.rank,
+          team: {
+            id:        e.team.id,
+            name:      e.team.name,
+            shortName: e.team.shortName,
+            code:      e.team.code,
+            logoUrl:   e.team.logoUrl,
+          },
+          played:         e.played,
+          win:            e.win,
+          draw:           e.draw,
+          lose:           e.lose,
+          goalsFor:       e.goalsFor,
+          goalsAgainst:   e.goalsAgainst,
+          goalDifference: e.goalDifference,
+          points:         e.points,
+          form:           e.form,
+          status:         e.status,
+          description:    e.description,
+        })),
+      }));
+    }
+  } catch {
+    // fall through to static data
   }
 
   // Static seed data fallback — always works, zero API calls

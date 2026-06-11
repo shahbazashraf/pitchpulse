@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMatch, useMatchStreams, useMatchEvents, useMatchStats, useMatchLineups } from "@/hooks/useMatches";
-import { cn, isLiveStatus, formatMatchTime, formatKickoff } from "@/lib/utils";
+import { cn, isLiveStatus, formatMatchTime } from "@/lib/utils";
+import { ClientKickoffTime } from "@/components/match/ClientKickoffTime";
 import { Play, MessageSquare, Users, BarChart2, Calendar, MapPin, ChevronLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { StreamPlayer } from "@/components/stream/StreamPlayer";
@@ -174,9 +175,7 @@ function MatchHeader({ match }: { match: any }) {
               </>
             ) : (
               <>
-                <span suppressHydrationWarning className="text-2xl font-bold text-pitch-text-primary">
-                  {formatKickoff(match.startTime)}
-                </span>
+                <ClientKickoffTime isoDate={match.startTime} className="text-2xl font-bold text-pitch-text-primary" />
                 <span className="text-xs text-pitch-text-muted">Kick-off</span>
               </>
             )}

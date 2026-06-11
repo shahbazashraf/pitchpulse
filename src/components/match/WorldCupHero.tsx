@@ -5,7 +5,7 @@ import { Calendar, MapPin, Trophy, ChevronRight, Zap } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { WC_FIXTURES, WC_TEAMS } from "@/lib/worldcup2026/data";
-import { formatKickoff } from "@/lib/utils";
+import { ClientKickoffTime } from "@/components/match/ClientKickoffTime";
 
 const WORLD_CUP_START = new Date("2026-06-11T00:00:00-05:00");
 const WORLD_CUP_END = new Date("2026-07-19T00:00:00-04:00");
@@ -171,9 +171,7 @@ export function WorldCupHero() {
                 <span className="text-xs text-pitch-text-muted font-bold mx-1">vs</span>
                 <span className="text-sm font-semibold text-pitch-text-primary">{awayTeam.shortName}</span>
                 <span className="text-xl">{awayTeam.flag}</span>
-                <span suppressHydrationWarning className="ml-2 text-xs text-pitch-green font-mono font-bold">
-                  {formatKickoff(nextFixture.kickoffUtc)}
-                </span>
+                <ClientKickoffTime isoDate={nextFixture.kickoffUtc} className="ml-2 text-xs text-pitch-green font-mono font-bold" />
               </div>
               <div className="text-xs text-pitch-text-muted hidden sm:block">
                 {nextFixture.city}, {nextFixture.country}
