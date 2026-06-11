@@ -3,6 +3,7 @@ import { getRegistry } from "@/lib/providers/registry";
 import { cache, CacheKey, TTL } from "@/lib/cache";
 import { wc2026Provider } from "@/lib/providers/wc2026";
 import { WC_TEAMS } from "@/lib/worldcup2026/data";
+import { enrichWCMatch } from "@/lib/worldcup2026/espnSync";
 
 export const runtime = "edge";
 
@@ -22,15 +23,20 @@ export async function GET(req: NextRequest) {
         ]);
 
         const wc = wcMatches.status === "fulfilled" ? wcMatches.value : [];
-        const others = registryResult.status === "fulfilled" ? (registryResult.value.data ?? []) : [];
+        const registryMatches = registryResult.status === "fulfilled" ? (registryResult.value.data ?? []) : [];
 
-        // Merge: WC matches take priority, de-dupe by team names
+        // Only strip WC from registry when wc2026Provider returned its own data.
+        // If wc is empty, keep registry WC matches (ESPN live data) so live WC games still show.
+        const others = wc.length > 0
+          ? registryMatches.filter((m) => m.competitionId !== "fifa-world-cup-2026")
+          : registryMatches;
+
         const wcTeamPairs = new Set(wc.map((m: any) => `${m.homeTeam?.name}|${m.awayTeam?.name}`));
         const filteredOthers = others.filter(
           (m) => !wcTeamPairs.has(`${m.homeTeam.name}|${m.awayTeam.name}`),
         );
 
-        return [...wc, ...filteredOthers];
+        return [...wc, ...filteredOthers].map(enrichWCMatch);
       },
       TTL.LIVE_MATCH,
     );

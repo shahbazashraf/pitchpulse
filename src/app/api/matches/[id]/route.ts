@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getRegistry } from "@/lib/providers/registry";
 import { cache, CacheKey, TTL } from "@/lib/cache";
 import { WC_FIXTURES, WC_TEAMS } from "@/lib/worldcup2026/data";
+import { enrichWCMatch } from "@/lib/worldcup2026/espnSync";
 
 export const runtime = "edge";
 
@@ -43,12 +44,12 @@ export async function GET(req: NextRequest, { params }: Params) {
       return NextResponse.json({ error: "Match not found" }, { status: 404 });
     }
 
-    const match = {
+    const match = enrichWCMatch({
       ...matchResult,
       events: eventsResult ?? matchResult.events,
       stats: statsResult ?? matchResult.stats,
       lineups: lineupsResult ?? matchResult.lineups,
-    };
+    });
 
     const isLive = ["1H", "HT", "2H", "ET", "P"].includes(match.status);
 

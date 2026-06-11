@@ -3,6 +3,7 @@ import { getRegistry } from "@/lib/providers/registry";
 import { cache, CacheKey, TTL } from "@/lib/cache";
 import { wc2026Provider } from "@/lib/providers/wc2026";
 import { getFixturesByDate, WC_TEAMS } from "@/lib/worldcup2026/data";
+import { fetchWCFixturesFromESPN, enrichWCMatch } from "@/lib/worldcup2026/espnSync";
 
 export const runtime = "edge";
 
@@ -85,15 +86,22 @@ export async function GET(req: NextRequest) {
             ]);
 
             const wc = wcMatches.status === "fulfilled" ? wcMatches.value : [];
-            const others = registryResult.status === "fulfilled" ? (registryResult.value.data ?? []) : [];
+            const registryMatches = registryResult.status === "fulfilled" ? (registryResult.value.data ?? []) : [];
 
-            // De-duplicate: WC matches take priority
+            // Strip WC from registry only when we have our own WC data (ESPN or static fallback).
+            // fetchWCMatchesByDate always falls back to static, so wc is non-empty whenever WC
+            // fixtures exist for this date — safe to always strip duplicates from registry.
+            const others = wc.length > 0
+              ? registryMatches.filter((m) => m.competitionId !== "fifa-world-cup-2026")
+              : registryMatches;
+
+            // De-duplicate remaining by team name pair (safety net)
             const wcIds = new Set(wc.map((m: any) => `${m.homeTeam?.name}|${m.awayTeam?.name}`));
             const filteredOthers = others.filter(
               (m) => !wcIds.has(`${m.homeTeam.name}|${m.awayTeam.name}`),
             );
 
-            return [...wc, ...filteredOthers];
+            return [...wc, ...filteredOthers].map(enrichWCMatch);
           },
           isTodayOrNear ? TTL.UPCOMING_MATCHES : TTL.COMPETITION,
         );
@@ -141,7 +149,44 @@ export async function GET(req: NextRequest) {
 
 
 async function fetchWCMatchesByDate(date: string) {
-  // Try live API first
+  // 1. Try ESPN (accurate UTC times)
+  try {
+    const espnFixtures = await fetchWCFixturesFromESPN(date);
+    if (espnFixtures.length > 0) {
+      return espnFixtures.map((f) => {
+        const home = WC_TEAMS[f.homeTeamCode];
+        const away = WC_TEAMS[f.awayTeamCode];
+        return {
+          id: `espn:fifa.world:${f.id}`,
+          provider: "espn",
+          providerId: f.id,
+          competitionId: "fifa-world-cup-2026",
+          season: "2026",
+          round: f.group ? `Group ${f.group}` : f.stage,
+          roundType: f.stage === "group" ? "group" : f.stage,
+          group: f.group ?? null,
+          homeTeam: makeTeam(home, f.homeTeamCode),
+          awayTeam: makeTeam(away, f.awayTeamCode),
+          homeScore: null, awayScore: null,
+          homeScoreHT: null, awayScoreHT: null,
+          homeScoreET: null, awayScoreET: null,
+          homePenalties: null, awayPenalties: null,
+          status: "NS",
+          minute: null, injuryTime: null,
+          venue: { id: "", name: f.venue, city: f.city, country: f.country, capacity: null, surface: null, imageUrl: null },
+          referee: null,
+          startTime: f.kickoffUtc,
+          timezone: "UTC",
+          events: [], stats: null, lineups: null,
+          updatedAt: new Date().toISOString(),
+        };
+      });
+    }
+  } catch {
+    // fall through
+  }
+
+  // 2. Try wc2026api.com
   if (wc2026Provider.isConfigured) {
     try {
       const raw = await wc2026Provider.getMatchesByDate(date);
@@ -151,7 +196,7 @@ async function fetchWCMatchesByDate(date: string) {
     }
   }
 
-  // Static seed fallback
+  // 3. Static seed fallback
   const fixtures = getFixturesByDate(date);
   return fixtures.map((f) => {
     const home = WC_TEAMS[f.homeTeamCode];

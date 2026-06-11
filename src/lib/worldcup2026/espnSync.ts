@@ -2,6 +2,24 @@ import { EspnProvider } from "@/lib/providers/espn";
 import type { WCFixture } from "./data";
 import { WC_TEAMS } from "./data";
 
+/** Overlay WC_TEAMS names + flag emoji onto any NormalizedMatch from any WC source. */
+export function enrichWCMatch(match: any): any {
+  if (match.competitionId !== "fifa-world-cup-2026") return match;
+  const homeCode = match.homeTeam?.code?.toUpperCase();
+  const awayCode = match.awayTeam?.code?.toUpperCase();
+  const homeWC = homeCode ? WC_TEAMS[homeCode] : null;
+  const awayWC = awayCode ? WC_TEAMS[awayCode] : null;
+  return {
+    ...match,
+    homeTeam: homeWC
+      ? { ...match.homeTeam, name: homeWC.name, shortName: homeWC.shortName, flag: homeWC.flag }
+      : match.homeTeam,
+    awayTeam: awayWC
+      ? { ...match.awayTeam, name: awayWC.name, shortName: awayWC.shortName, flag: awayWC.flag }
+      : match.awayTeam,
+  };
+}
+
 const espn = new EspnProvider();
 
 // Maps ESPN round text → WCFixture stage values
