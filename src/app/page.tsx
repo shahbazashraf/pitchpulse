@@ -50,7 +50,7 @@ export default function HomePage() {
       <WorldCupHero />
 
       {/* 2. Explore Competitions */}
-      <section>
+      <section className="reveal-on-scroll">
         <SectionHeader
           icon={<Compass className="w-4 h-4" />}
           title="Explore Competitions"
@@ -59,7 +59,7 @@ export default function HomePage() {
       </section>
 
       {/* 3. Live Matches */}
-      <section>
+      <section className="content-visibility-auto contain-intrinsic-size-matches reveal-on-scroll">
         <SectionHeader
           icon={<Trophy className="w-4 h-4" />}
           title="Matches"
@@ -71,7 +71,7 @@ export default function HomePage() {
       <OfficialHighlightsSection limit={4} />
 
       {/* 5. Latest Highlights */}
-      <section>
+      <section className="content-visibility-auto contain-intrinsic-size-highlights reveal-on-scroll">
         <SectionHeader
           icon={<Play className="w-4 h-4" />}
           title="Latest Highlights"
@@ -81,7 +81,7 @@ export default function HomePage() {
       </section>
 
       {/* 6. Breaking Football News */}
-      <section>
+      <section className="content-visibility-auto contain-intrinsic-size-news reveal-on-scroll">
         <SectionHeader
           icon={<Newspaper className="w-4 h-4" />}
           title="Breaking Football News"

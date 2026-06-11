@@ -98,8 +98,8 @@ export function WCOverview() {
                 </span>
                 <span className="text-xl">{f.awayTeam?.flag ?? "🏳️"}</span>
               </div>
-              <div className="text-right">
-                <div className="text-sm font-mono font-bold text-pitch-green">
+              <div suppressHydrationWarning className="text-right">
+                <div suppressHydrationWarning className="text-sm font-mono font-bold text-pitch-green">
                   {formatKickoff(f.kickoffUtc)}
                 </div>
                 <div className="text-xs text-pitch-text-muted">{f.city}</div>

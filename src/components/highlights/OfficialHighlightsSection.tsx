@@ -89,7 +89,7 @@ export function OfficialHighlightsSection({
   const playingHighlight = highlights.find((h) => h.id === playingId) ?? null;
 
   return (
-    <section className="space-y-4">
+    <section className="space-y-4 content-visibility-auto contain-intrinsic-size-highlights reveal-on-scroll">
       <SectionHeader
         icon={<Shield className="w-4 h-4" />}
         title="FIFA/UEFA"

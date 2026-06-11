@@ -57,7 +57,7 @@ export default function MatchCard({ match, hasStreams = false }: MatchCardProps)
           <div className="text-center shrink-0 min-w-[60px]">
             {isUpcoming ? (
               <div className="flex flex-col items-center gap-0.5">
-                <span className="text-sm font-bold text-pitch-text-secondary">{statusLabel}</span>
+                <span suppressHydrationWarning className="text-sm font-bold text-pitch-text-secondary">{statusLabel}</span>
                 {match.venue?.city && (
                   <span className="text-[10px] text-pitch-text-muted">{match.venue.city}</span>
                 )}

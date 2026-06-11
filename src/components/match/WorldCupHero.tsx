@@ -171,7 +171,7 @@ export function WorldCupHero() {
                 <span className="text-xs text-pitch-text-muted font-bold mx-1">vs</span>
                 <span className="text-sm font-semibold text-pitch-text-primary">{awayTeam.shortName}</span>
                 <span className="text-xl">{awayTeam.flag}</span>
-                <span className="ml-2 text-xs text-pitch-green font-mono font-bold">
+                <span suppressHydrationWarning className="ml-2 text-xs text-pitch-green font-mono font-bold">
                   {formatKickoff(nextFixture.kickoffUtc)}
                 </span>
               </div>

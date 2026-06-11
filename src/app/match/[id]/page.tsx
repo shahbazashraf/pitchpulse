@@ -174,7 +174,7 @@ function MatchHeader({ match }: { match: any }) {
               </>
             ) : (
               <>
-                <span className="text-2xl font-bold text-pitch-text-primary">
+                <span suppressHydrationWarning className="text-2xl font-bold text-pitch-text-primary">
                   {formatKickoff(match.startTime)}
                 </span>
                 <span className="text-xs text-pitch-text-muted">Kick-off</span>

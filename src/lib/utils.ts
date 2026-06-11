@@ -21,7 +21,11 @@ export function isLiveStatus(status: string): boolean {
 
 export function formatKickoff(isoDate: string): string {
   const d = new Date(isoDate);
-  return d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  return d.toLocaleTimeString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
 }
 
 export function formatMatchDate(isoDate: string): string {
