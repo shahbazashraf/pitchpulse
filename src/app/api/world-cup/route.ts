@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { WC_FIXTURES, WC_TEAMS } from "@/lib/worldcup2026/data";
-import { fetchWCFixturesFromESPN } from "@/lib/worldcup2026/espnSync";
+import { EspnProvider } from "@/lib/providers/espn";
 
 export const runtime = "nodejs";
 export const revalidate = 60;
@@ -12,38 +12,60 @@ export async function GET() {
   const today = now.toISOString().slice(0, 10);
   const tomorrow = new Date(now.getTime() + 86_400_000).toISOString().slice(0, 10);
 
-  // Fetch today + tomorrow from ESPN in parallel
-  const [todayResult, tomorrowResult] = await Promise.allSettled([
-    fetchWCFixturesFromESPN(today),
-    fetchWCFixturesFromESPN(tomorrow),
-  ]);
+  let nextMatches: object[] = [];
+  let todayFixtureCount = 0;
 
-  const liveFixtures = [
-    ...(todayResult.status === "fulfilled" ? todayResult.value : []),
-    ...(tomorrowResult.status === "fulfilled" ? tomorrowResult.value : []),
-  ];
+  try {
+    const espn = new EspnProvider();
+    const [todayResult, tomorrowResult] = await Promise.allSettled([
+      espn.getMatchesByDate(today, ["fifa-world-cup-2026"]),
+      espn.getMatchesByDate(tomorrow, ["fifa-world-cup-2026"]),
+    ]);
 
-  // Fall back to static data if ESPN returned nothing
-  const sourceFixtures = liveFixtures.length > 0 ? liveFixtures : WC_FIXTURES;
+    const liveMatches = [
+      ...(todayResult.status === "fulfilled" ? todayResult.value.data ?? [] : []),
+      ...(tomorrowResult.status === "fulfilled" ? tomorrowResult.value.data ?? [] : []),
+    ];
 
-  // Next 3 upcoming fixtures
-  const nextMatches = sourceFixtures
-    .filter((f) => new Date(f.kickoffUtc) > now)
-    .slice(0, 3)
-    .map((f) => ({
+    if (liveMatches.length > 0) {
+      todayFixtureCount = liveMatches.filter((m) => m.startTime.startsWith(today)).length;
+
+      nextMatches = liveMatches
+        .filter((m) => m.status === "NS")
+        .slice(0, 3)
+        .map((m) => {
+          const homeWC = WC_TEAMS[m.homeTeam.code];
+          const awayWC = WC_TEAMS[m.awayTeam.code];
+          return {
+            id: m.id,
+            homeTeamCode: m.homeTeam.code,
+            awayTeamCode: m.awayTeam.code,
+            kickoffUtc: m.startTime,
+            venue: m.venue?.name ?? "",
+            city: m.venue?.city ?? "",
+            homeTeam: homeWC ?? { name: m.homeTeam.name, shortName: m.homeTeam.shortName, flag: "", code: m.homeTeam.code },
+            awayTeam: awayWC ?? { name: m.awayTeam.name, shortName: m.awayTeam.shortName, flag: "", code: m.awayTeam.code },
+          };
+        });
+    }
+  } catch {
+    // fall through to static
+  }
+
+  // Static fallback if ESPN returned nothing
+  if (nextMatches.length === 0) {
+    const upcoming = WC_FIXTURES.filter((f) => new Date(f.kickoffUtc) > now);
+    todayFixtureCount = WC_FIXTURES.filter((f) => f.kickoffUtc.startsWith(today)).length;
+    nextMatches = upcoming.slice(0, 3).map((f) => ({
       ...f,
       homeTeam: WC_TEAMS[f.homeTeamCode] ?? { name: f.homeTeamCode, shortName: f.homeTeamCode, flag: "🏳️", code: f.homeTeamCode },
       awayTeam: WC_TEAMS[f.awayTeamCode] ?? { name: f.awayTeamCode, shortName: f.awayTeamCode, flag: "🏳️", code: f.awayTeamCode },
     }));
-
-  // Today's count — use full static list for accuracy if ESPN only returned 2 days
-  const todayFixtureCount = (liveFixtures.length > 0 ? liveFixtures : WC_FIXTURES)
-    .filter((f) => f.kickoffUtc.startsWith(today))
-    .length;
+  }
 
   const daysUntilFinal = Math.max(
     0,
-    Math.floor((FINAL_DATE.getTime() - now.getTime()) / 86_400_000)
+    Math.floor((FINAL_DATE.getTime() - now.getTime()) / 86_400_000),
   );
 
   return NextResponse.json({

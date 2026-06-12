@@ -3,7 +3,8 @@ import { getRegistry } from "@/lib/providers/registry";
 import { cache, CacheKey, TTL } from "@/lib/cache";
 import { wc2026Provider } from "@/lib/providers/wc2026";
 import { getFixturesByDate, WC_TEAMS } from "@/lib/worldcup2026/data";
-import { fetchWCFixturesFromESPN, enrichWCMatch } from "@/lib/worldcup2026/espnSync";
+import { enrichWCMatch } from "@/lib/worldcup2026/espnSync";
+import { EspnProvider } from "@/lib/providers/espn";
 
 export const runtime = "edge";
 
@@ -149,39 +150,11 @@ export async function GET(req: NextRequest) {
 
 
 async function fetchWCMatchesByDate(date: string) {
-  // 1. Try ESPN (accurate UTC times)
+  // 1. ESPN directly — NormalizedMatch has real status + scores
   try {
-    const espnFixtures = await fetchWCFixturesFromESPN(date);
-    if (espnFixtures.length > 0) {
-      return espnFixtures.map((f) => {
-        const home = WC_TEAMS[f.homeTeamCode];
-        const away = WC_TEAMS[f.awayTeamCode];
-        return {
-          id: `espn:fifa.world:${f.id}`,
-          provider: "espn",
-          providerId: f.id,
-          competitionId: "fifa-world-cup-2026",
-          season: "2026",
-          round: f.group ? `Group ${f.group}` : f.stage,
-          roundType: f.stage === "group" ? "group" : f.stage,
-          group: f.group ?? null,
-          homeTeam: makeTeam(home, f.homeTeamCode),
-          awayTeam: makeTeam(away, f.awayTeamCode),
-          homeScore: null, awayScore: null,
-          homeScoreHT: null, awayScoreHT: null,
-          homeScoreET: null, awayScoreET: null,
-          homePenalties: null, awayPenalties: null,
-          status: "NS",
-          minute: null, injuryTime: null,
-          venue: { id: "", name: f.venue, city: f.city, country: f.country, capacity: null, surface: null, imageUrl: null },
-          referee: null,
-          startTime: f.kickoffUtc,
-          timezone: "UTC",
-          events: [], stats: null, lineups: null,
-          updatedAt: new Date().toISOString(),
-        };
-      });
-    }
+    const espn = new EspnProvider();
+    const result = await espn.getMatchesByDate(date, ["fifa-world-cup-2026"]);
+    if (result.data?.length) return result.data;
   } catch {
     // fall through
   }

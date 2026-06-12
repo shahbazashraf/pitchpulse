@@ -3,6 +3,7 @@ import { getRegistry } from "@/lib/providers/registry";
 import { cache, CacheKey, TTL } from "@/lib/cache";
 import { WC_FIXTURES, WC_TEAMS } from "@/lib/worldcup2026/data";
 import { enrichWCMatch } from "@/lib/worldcup2026/espnSync";
+import { EspnProvider } from "@/lib/providers/espn";
 
 export const runtime = "edge";
 
@@ -17,11 +18,36 @@ export async function GET(req: NextRequest, { params }: Params) {
   const include = searchParams.get("include")?.split(",") ?? [];
 
   try {
-    const staticMatch = getStaticWCMatch(id);
-    if (staticMatch) {
+    const staticFixture = getStaticWCMatch(id);
+    if (staticFixture) {
+      // Attempt ESPN live overlay by matching team codes on that date
+      try {
+        const espn = new EspnProvider();
+        const dateStr = staticFixture.startTime.slice(0, 10);
+        const result = await espn.getMatchesByDate(dateStr, ["fifa-world-cup-2026"]);
+        const live = result.data?.find(
+          (m) =>
+            m.homeTeam.code === staticFixture.homeTeam.code &&
+            m.awayTeam.code === staticFixture.awayTeam.code,
+        );
+        if (live) {
+          const match = enrichWCMatch(live);
+          const isMatchLive = ["1H", "HT", "2H", "ET", "P"].includes(match.status);
+          return NextResponse.json(
+            { match, fetchedAt: new Date().toISOString() },
+            {
+              headers: {
+                "Cache-Control": `public, s-maxage=${isMatchLive ? 15 : 60}, stale-while-revalidate=30`,
+              },
+            },
+          );
+        }
+      } catch {
+        // fall through to static
+      }
       return NextResponse.json(
-        { match: staticMatch, fetchedAt: new Date().toISOString() },
-        { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=300" } },
+        { match: staticFixture, fetchedAt: new Date().toISOString() },
+        { headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=60" } },
       );
     }
 
