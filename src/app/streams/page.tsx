@@ -188,7 +188,7 @@ function MatchCard({ match, index }: { match: ScrapedMatch; index: number }) {
           </div>
 
           {/* Center — score or time */}
-          <div className="flex flex-col items-center gap-0.5 min-w-[64px]">
+          <div className="flex flex-col items-center gap-0.5 min-w-[48px] sm:min-w-[64px]">
             {isLive && scoreStr ? (
               <span className="text-xl font-black text-pitch-green tabular-nums">
                 {scoreStr}

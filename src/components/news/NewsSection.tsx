@@ -52,7 +52,7 @@ function FeaturedNewsCard({ article, index }: { article: NewsArticle; index: num
       className="glass-card group flex flex-col gap-3 hover:border-pitch-green/20 border border-transparent transition-all"
     >
       {article.imageUrl && (
-        <div className="relative h-40 rounded-xl overflow-hidden bg-pitch-muted/40">
+        <div className="relative h-32 sm:h-40 rounded-xl overflow-hidden bg-pitch-muted/40">
           <img
             src={article.imageUrl}
             alt={article.headline}
@@ -169,7 +169,7 @@ export function NewsSection({ limit = 5 }: NewsSectionProps) {
 
       {/* Grid of smaller cards */}
       {rest.length > 0 ? (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {rest.slice(0, 4).map((article, i) => (
             <SmallNewsCard key={article.id} article={article} index={i + 1} />
           ))}

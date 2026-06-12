@@ -267,7 +267,7 @@ export default function ScoresDashboard() {
         <button
           onClick={() => setMode("dates")}
           className={cn(
-            "flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold border transition-all whitespace-nowrap shrink-0",
+            "flex items-center gap-1.5 px-2 sm:px-3 md:px-4 py-2 rounded-xl text-sm font-semibold border transition-all whitespace-nowrap shrink-0",
             mode === "dates"
               ? "bg-pitch-green/10 border-pitch-green/25 text-pitch-green"
               : "bg-pitch-muted/20 border-pitch-border/40 text-pitch-text-secondary hover:border-pitch-border hover:text-pitch-text-primary"
@@ -287,7 +287,7 @@ export default function ScoresDashboard() {
         <button
           onClick={() => setMode("worldcup")}
           className={cn(
-            "flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold border transition-all whitespace-nowrap shrink-0",
+            "flex items-center gap-1.5 px-2 sm:px-3 md:px-4 py-2 rounded-xl text-sm font-semibold border transition-all whitespace-nowrap shrink-0",
             mode === "worldcup"
               ? "bg-pitch-green/10 border-pitch-green/25 text-pitch-green"
               : "bg-pitch-muted/20 border-pitch-border/40 text-pitch-text-secondary hover:border-pitch-border hover:text-pitch-text-primary"

@@ -27,7 +27,7 @@ export default function LiveTicker() {
           <Link
             key={match.id}
             href={`/match/${match.id}`}
-            className="mx-4 text-sm text-text-secondary hover:text-text-primary transition"
+            className="mx-2 md:mx-4 text-xs text-text-secondary hover:text-text-primary transition"
           >
             {match.homeTeam.shortName} {match.homeScore ?? '-'} : {match.awayScore ?? '-'} {match.awayTeam.shortName} ({match.status})
           </Link>

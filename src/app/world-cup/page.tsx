@@ -63,8 +63,8 @@ function StandingRow({ entry, rank }: { entry: StandingEntry; rank: number }) {
       </div>
       <span className="text-center text-pitch-text-secondary w-6">{entry.played}</span>
       <span className="text-center text-pitch-text-secondary w-6">{entry.win}</span>
-      <span className="text-center text-pitch-text-secondary w-6">{entry.draw}</span>
-      <span className="text-center text-pitch-text-secondary w-6">{entry.lose}</span>
+      <span className="hidden sm:inline text-center text-pitch-text-secondary w-6">{entry.draw}</span>
+      <span className="hidden sm:inline text-center text-pitch-text-secondary w-6">{entry.lose}</span>
       <span className={clsx("text-center w-8", entry.goalDifference > 0 ? "text-pitch-green" : entry.goalDifference < 0 ? "text-pitch-red" : "text-pitch-text-muted")}>
         {entry.goalDifference > 0 ? `+${entry.goalDifference}` : entry.goalDifference}
       </span>
@@ -89,7 +89,7 @@ function GroupCard({ group }: { group: NormalizedStanding }) {
       {open && (
         <>
           <div className="grid grid-cols-[1fr_repeat(6,_auto)] gap-2 px-2 mb-1">
-            {["", "P", "W", "D", "L", "GD", "Pts"].map((h, i) => (
+            {["", "P", "W", <span key="d" className="hidden sm:inline">D</span>, <span key="l" className="hidden sm:inline">L</span>, "GD", "Pts"].map((h, i) => (
               <span key={i} className="text-[10px] text-pitch-text-muted uppercase text-center">{h}</span>
             ))}
           </div>
@@ -161,7 +161,7 @@ export default function WorldCupPage() {
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={clsx(
-              "flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold border transition-all whitespace-nowrap shrink-0",
+              "flex items-center gap-1.5 px-2 sm:px-4 py-2 rounded-xl text-sm font-semibold border transition-all whitespace-nowrap shrink-0",
               activeTab === tab.id
                 ? "bg-pitch-green/10 border-pitch-green/25 text-pitch-green"
                 : "bg-pitch-muted/20 border-pitch-border/40 text-pitch-text-secondary hover:border-pitch-border hover:text-pitch-text-primary"

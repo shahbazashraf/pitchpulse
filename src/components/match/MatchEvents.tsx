@@ -142,7 +142,7 @@ function EventRow({
       <div className={cn("flex flex-col items-end text-right", !isHome && "opacity-0")}>
         {isHome && (
           <>
-            <span className={cn("text-sm font-semibold", cfg.homeColor)}>
+            <span className={cn("text-sm font-semibold truncate", cfg.homeColor)}>
               {event.playerName}
             </span>
             {event.assistPlayerName && (
@@ -182,7 +182,7 @@ function EventRow({
       <div className={cn("flex flex-col items-start text-left", isHome && "opacity-0")}>
         {!isHome && (
           <>
-            <span className={cn("text-sm font-semibold", cfg.awayColor)}>
+            <span className={cn("text-sm font-semibold truncate", cfg.awayColor)}>
               {event.playerName}
             </span>
             {event.assistPlayerName && (

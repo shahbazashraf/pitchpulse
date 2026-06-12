@@ -26,10 +26,10 @@ function SectionHeader({
     <div className="flex items-center justify-between mb-4">
       <div className="flex items-center gap-2">
         <div className="w-[3px] h-5 rounded-full bg-pitch-green/70 shrink-0" />
-        <div className="w-8 h-8 rounded-lg bg-pitch-green/15 border border-pitch-green/20 flex items-center justify-center text-pitch-green">
+        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-pitch-green/15 border border-pitch-green/20 flex items-center justify-center text-pitch-green">
           {icon}
         </div>
-        <h2 className="text-2xl font-bold text-pitch-text-primary">{title}</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-pitch-text-primary">{title}</h2>
       </div>
       {href && (
         <Link

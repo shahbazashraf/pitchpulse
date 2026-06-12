@@ -98,7 +98,7 @@ function NewsCard({ article, index }: { article: Article; index: number }) {
     >
       {/* Image */}
       {article.imageUrl && (
-        <div className="relative h-40 bg-pitch-dark overflow-hidden">
+        <div className="relative h-32 sm:h-40 bg-pitch-dark overflow-hidden">
           <img
             src={article.imageUrl}
             alt={article.headline}

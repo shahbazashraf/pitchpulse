@@ -121,10 +121,10 @@ function MatchHeader({ match }: { match: any }) {
         </div>
 
         {/* Scoreline */}
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center justify-between gap-2 sm:gap-4">
           {/* Home team */}
           <div className="flex-1 flex flex-col items-center gap-2 min-w-0">
-            <span className="text-4xl leading-none">{(match.homeTeam as any).flag ?? "🏳️"}</span>
+            <span className="text-2xl sm:text-4xl leading-none">{(match.homeTeam as any).flag ?? "🏳️"}</span>
             <span className="text-sm font-semibold text-pitch-text-primary text-center leading-tight">
               {match.homeTeam.name}
             </span>
@@ -141,19 +141,19 @@ function MatchHeader({ match }: { match: any }) {
                       initial={{ scale: 0.5, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                      className="text-5xl font-black text-pitch-text-primary tabular-nums"
+                      className="text-3xl sm:text-5xl font-black text-pitch-text-primary tabular-nums"
                     >
                       {match.homeScore ?? 0}
                     </motion.span>
                   </AnimatePresence>
-                  <span className="text-3xl font-light text-pitch-text-muted">–</span>
+                  <span className="text-2xl sm:text-3xl font-light text-pitch-text-muted">–</span>
                   <AnimatePresence mode="wait">
                     <motion.span
                       key={`away-${match.awayScore}`}
                       initial={{ scale: 0.5, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ type: "spring", stiffness: 400, damping: 15 }}
-                      className="text-5xl font-black text-pitch-text-primary tabular-nums"
+                      className="text-3xl sm:text-5xl font-black text-pitch-text-primary tabular-nums"
                     >
                       {match.awayScore ?? 0}
                     </motion.span>
@@ -183,7 +183,7 @@ function MatchHeader({ match }: { match: any }) {
 
           {/* Away team */}
           <div className="flex-1 flex flex-col items-center gap-2 min-w-0">
-            <span className="text-4xl leading-none">{(match.awayTeam as any).flag ?? "🏳️"}</span>
+            <span className="text-2xl sm:text-4xl leading-none">{(match.awayTeam as any).flag ?? "🏳️"}</span>
             <span className="text-sm font-semibold text-pitch-text-primary text-center leading-tight">
               {match.awayTeam.name}
             </span>

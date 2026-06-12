@@ -36,7 +36,7 @@ export default function MatchCard({ match, hasStreams = false }: MatchCardProps)
             : "border-pitch-border/50 hover:border-pitch-green/20"
         )}
       >
-        <div className="flex items-center justify-between px-3 py-2.5 gap-2">
+        <div className="flex items-center justify-between px-2 sm:px-3 py-2.5 gap-2">
           {/* Home team */}
           <div className="flex items-center gap-2 flex-1 min-w-0">
             {home.flag && (
@@ -49,7 +49,7 @@ export default function MatchCard({ match, hasStreams = false }: MatchCardProps)
           </div>
 
           {/* Score / Time */}
-          <div className="text-center shrink-0 min-w-[60px]">
+          <div className="text-center shrink-0 min-w-[50px] sm:min-w-[60px]">
             {isUpcoming ? (
               <div className="flex flex-col items-center gap-0.5">
                 <ClientKickoffTime isoDate={match.startTime} className="text-sm font-bold text-pitch-text-secondary" />

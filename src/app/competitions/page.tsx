@@ -138,8 +138,8 @@ function StandingGroup({ standing, index }: { standing: NormalizedStanding; inde
               <span>Team</span>
               <span className="w-6 text-center">P</span>
               <span className="w-6 text-center">W</span>
-              <span className="w-6 text-center">D</span>
-              <span className="w-6 text-center">L</span>
+              <span className="hidden sm:inline w-6 text-center">D</span>
+              <span className="hidden sm:inline w-6 text-center">L</span>
               <span className="w-8 text-center">GD</span>
               <span className="w-8 text-center font-bold text-pitch-text-primary">Pts</span>
             </div>
@@ -201,8 +201,8 @@ function StandingRow({ entry, rank, total }: { entry: StandingEntry; rank: numbe
 
       <span className="w-6 text-center text-xs text-pitch-text-secondary tabular-nums">{entry.played}</span>
       <span className="w-6 text-center text-xs text-pitch-text-secondary tabular-nums">{entry.win}</span>
-      <span className="w-6 text-center text-xs text-pitch-text-secondary tabular-nums">{entry.draw}</span>
-      <span className="w-6 text-center text-xs text-pitch-text-secondary tabular-nums">{entry.lose}</span>
+      <span className="hidden sm:inline w-6 text-center text-xs text-pitch-text-secondary tabular-nums">{entry.draw}</span>
+      <span className="hidden sm:inline w-6 text-center text-xs text-pitch-text-secondary tabular-nums">{entry.lose}</span>
       <span className={cn(
         "w-8 text-center text-xs tabular-nums font-medium",
         entry.goalDifference > 0 ? "text-pitch-green" : entry.goalDifference < 0 ? "text-pitch-red" : "text-pitch-text-muted",

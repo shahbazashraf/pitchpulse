@@ -210,7 +210,7 @@ export default function Footer() {
                   Kick<span className="text-pitch-green">Streaming</span>
                 </span>
               </div>
-              <p className="text-sm text-pitch-text-secondary max-w-xs leading-relaxed">
+              <p className="text-sm text-pitch-text-secondary max-w-full sm:max-w-xs leading-relaxed">
                 Your premium football hub — live scores, World Cup 2026, highlights, streams, and AI-powered news. Free. Always.
               </p>
               {/* Social */}
@@ -251,7 +251,7 @@ export default function Footer() {
                     placeholder="your@email.com"
                     className="flex-1 px-3 py-2 rounded-xl bg-pitch-dark/60 border border-pitch-border/40 text-sm text-pitch-text-primary placeholder:text-pitch-text-muted focus:outline-none focus:border-pitch-green/40 transition-colors"
                   />
-                  <button className="px-4 py-2 rounded-xl bg-pitch-green text-pitch-dark text-sm font-bold hover:bg-pitch-green-dim transition-colors cursor-pointer shrink-0">
+                  <button className="px-2 sm:px-4 py-2 rounded-xl bg-pitch-green text-pitch-dark text-sm font-bold hover:bg-pitch-green-dim transition-colors cursor-pointer shrink-0">
                     Subscribe
                   </button>
                 </div>
@@ -265,7 +265,7 @@ export default function Footer() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-8 pb-8 border-b border-pitch-border/30"
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 pb-8 border-b border-pitch-border/30"
           >
             <FooterLinkCol
               title="Navigate"

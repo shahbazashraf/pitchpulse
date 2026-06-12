@@ -303,7 +303,7 @@ function ListView({
   match: NormalizedMatch;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <TeamListPanel lineup={home} team={match.homeTeam} color="green" />
       <TeamListPanel lineup={away} team={match.awayTeam} color="blue" />
     </div>

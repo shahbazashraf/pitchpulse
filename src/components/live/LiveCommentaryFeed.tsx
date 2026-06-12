@@ -134,7 +134,7 @@ export function LiveCommentaryFeed({ matchId, isLive }: LiveCommentaryFeedProps)
       <div
         ref={feedRef}
         onScroll={handleScroll}
-        className="space-y-2 max-h-[520px] overflow-y-auto pr-1"
+        className="space-y-2 max-h-[60vh] sm:max-h-[520px] overflow-y-auto pr-1"
       >
         <AnimatePresence initial={false}>
           {sorted.map((entry, i) => (

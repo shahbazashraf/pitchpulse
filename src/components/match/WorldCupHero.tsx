@@ -79,13 +79,13 @@ export function WorldCupHero() {
       {/* Glow accent */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-px bg-gradient-to-r from-transparent via-pitch-green/50 to-transparent" />
 
-      <div className="relative px-6 py-8 md:px-10 md:py-10">
+      <div className="relative px-4 py-6 sm:px-6 sm:py-8 md:px-10 md:py-10">
         {/* Header row */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           {/* Title block */}
           <div className="flex items-start gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-pitch-green/20 border border-pitch-green/30 flex items-center justify-center shrink-0 shadow-lg">
-              <Trophy className="w-7 h-7 text-pitch-green" />
+            <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-2xl bg-pitch-green/20 border border-pitch-green/30 flex items-center justify-center shrink-0 shadow-lg">
+              <Trophy className="w-5 h-5 sm:w-7 sm:h-7 text-pitch-green" />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
@@ -136,7 +136,7 @@ export function WorldCupHero() {
               <span className="text-xs text-pitch-text-muted uppercase tracking-widest font-medium">
                 Tournament begins in
               </span>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {[
                   { value: countdown.days, label: "days" },
                   { value: countdown.hours, label: "hrs" },
@@ -145,7 +145,7 @@ export function WorldCupHero() {
                 ].map(({ value, label }) => (
                   <div
                     key={label}
-                    className="text-center min-w-[3.5rem] px-3 py-2 rounded-xl bg-pitch-muted/50 border border-pitch-border/60"
+                    className="text-center min-w-[3rem] sm:min-w-[3.5rem] px-3 py-2 rounded-xl bg-pitch-muted/50 border border-pitch-border/60"
                   >
                     <div className="text-2xl font-bold text-pitch-green leading-none tabular-nums">
                       {String(value).padStart(2, "0")}

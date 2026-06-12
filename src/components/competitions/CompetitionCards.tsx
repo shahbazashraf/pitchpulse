@@ -62,8 +62,8 @@ export function CompetitionCards() {
             href={comp.href}
             className={`flex flex-col items-center justify-center gap-2 rounded-2xl shrink-0 border transition-all hover:shadow-glass-hover ${
               comp.highlight
-                ? "w-36 h-28 border-pitch-green/30 bg-pitch-green/5 hover:border-pitch-green/50 hover:bg-pitch-green/10"
-                : "w-32 h-28 border-pitch-border/60 bg-pitch-card/80 hover:border-pitch-border hover:bg-pitch-muted/30"
+                ? "w-28 sm:w-32 md:w-36 h-24 sm:h-28 border-pitch-green/30 bg-pitch-green/5 hover:border-pitch-green/50 hover:bg-pitch-green/10"
+                : "w-24 sm:w-28 md:w-32 h-24 sm:h-28 border-pitch-border/60 bg-pitch-card/80 hover:border-pitch-border hover:bg-pitch-muted/30"
             }`}
           >
             <span className="text-3xl">{comp.emoji}</span>

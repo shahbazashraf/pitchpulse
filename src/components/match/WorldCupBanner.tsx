@@ -77,7 +77,7 @@ export function WorldCupBanner() {
                 { value: countdown.hours, label: "hrs" },
                 { value: countdown.minutes, label: "min" },
               ].map(({ value, label }) => (
-                <div key={label} className="text-center min-w-[3rem] px-2 py-1 rounded-lg bg-pitch-muted/50 border border-pitch-border/50">
+                <div key={label} className="text-center min-w-[2.5rem] sm:min-w-[3rem] px-2 py-1 rounded-lg bg-pitch-muted/50 border border-pitch-border/50">
                   <div className="text-lg font-bold text-pitch-green leading-none tabular-nums">
                     {String(value).padStart(2, "0")}
                   </div>

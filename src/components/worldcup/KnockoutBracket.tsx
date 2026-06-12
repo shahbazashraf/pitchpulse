@@ -45,7 +45,7 @@ function buildBracketSlots(): Record<string, BracketSlot[]> {
 function MatchSlot({ slot }: { slot: BracketSlot }) {
   const isTBD = slot.home === "TBD" || !slot.home;
   return (
-    <div className="glass rounded-xl p-2 text-center min-w-[80px] border border-pitch-border/40">
+    <div className="glass rounded-xl p-2 text-center min-w-[64px] sm:min-w-[80px] border border-pitch-border/40">
       <div className={`text-xs font-semibold ${isTBD ? "text-pitch-text-muted" : "text-pitch-text-primary"}`}>
         {slot.home}
       </div>
@@ -75,8 +75,9 @@ export function KnockoutBracket() {
       <p className="text-xs text-pitch-text-muted">
         Knockout bracket — slots fill as group stage results are confirmed.
       </p>
+      <p className="text-xs text-pitch-text-muted block sm:hidden">← Scroll to see full bracket →</p>
       <div className="overflow-x-auto no-scrollbar">
-        <div className="flex gap-4 min-w-max pb-2">
+        <div className="flex gap-2 sm:gap-4 min-w-max pb-2">
           {STAGE_ORDER.map((stage) => {
             const slots = stages[stage] ?? [];
             if (slots.length === 0) return null;
