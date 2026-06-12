@@ -3,7 +3,7 @@ import { getRegistry } from "@/lib/providers/registry";
 import { cache, CacheKey, TTL } from "@/lib/cache";
 import { wc2026Provider } from "@/lib/providers/wc2026";
 import { EspnProvider } from "@/lib/providers/espn";
-import { WC_GROUPS, WC_TEAMS } from "@/lib/worldcup2026/data";
+import { WC_GROUPS, WC_TEAMS, WC_FIXTURES } from "@/lib/worldcup2026/data";
 
 const WC_START_DATE = "2026-06-11";
 
@@ -172,7 +172,12 @@ async function computeStandingsFromResults() {
   const rows: Record<string, TeamRow> = {};
 
   for (const m of completedGroupMatches) {
-    const group = m.group ?? "?";
+    const fixture = WC_FIXTURES.find(
+      (f) =>
+        (f.homeTeamCode === hCode && f.awayTeamCode === aCode) ||
+        (f.homeTeamCode === aCode && f.awayTeamCode === hCode),
+    );
+    const group = m.group ?? fixture?.group ?? "?";
     const hCode = m.homeTeam.code;
     const aCode = m.awayTeam.code;
     const hGoals = m.homeScore ?? 0;
@@ -217,7 +222,9 @@ async function computeStandingsFromResults() {
     }
   }
 
-  return Object.entries(byGroup).map(([group, teams]) => ({
+  return Object.entries(byGroup)
+    .filter(([group]) => group !== "?")
+    .map(([group, teams]) => ({
     competitionId: "fifa-world-cup-2026",
     season: "2026",
     group,

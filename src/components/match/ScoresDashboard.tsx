@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLiveMatches, useMatchesByDate } from "@/hooks/useMatches";
 import { useScrapedMatches, type ScrapedMatch } from "@/hooks/useScrapedMatches";
 import MatchCard from "@/components/match/MatchCard";
-import { cn, getDateString, getLocalDateString } from "@/lib/utils";
+import { cn, getLocalDateString } from "@/lib/utils";
 import { RefreshCw, Radio, Trophy } from "lucide-react";
 import type { NormalizedMatch } from "@/types";
 import { WC_FIXTURES, WC_TEAMS } from "@/lib/worldcup2026/data";
@@ -334,14 +334,15 @@ export default function ScoresDashboard() {
       ) : wcTabs.length > 0 ? (
         <div className="flex items-center gap-1 overflow-x-auto no-scrollbar -mt-2">
           {wcTabs.map(({ date, label }) => {
-            const count = wcFixturesToMatches(date).length;
+            const isActive = date === wcDate;
+            const count = isActive ? wcMatches.length : wcFixturesToMatches(date).length;
             return (
               <button
                 key={date}
                 onClick={() => setWcDate(date)}
                 className={cn(
                   "flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 shrink-0",
-                  date === wcDate
+                  isActive
                     ? "text-pitch-green bg-pitch-green/10 border border-pitch-green/25"
                     : "text-pitch-text-secondary hover:text-pitch-text-primary hover:bg-pitch-muted/40 border border-transparent"
                 )}
